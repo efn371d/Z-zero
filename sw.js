@@ -1,6 +1,6 @@
 // 오프라인 지원: 앱 파일을 저장해 두고 인터넷 없이도 열리게 함
 // 파일을 수정해서 다시 올릴 때는 VERSION 숫자를 하나 올려 주세요 (그래야 폰에서 새 버전을 받아요)
-const VERSION = 'z-zero-v3';
+const VERSION = 'z-zero-v4';
 const FILES = [
   './',
   'index.html',
@@ -81,7 +81,8 @@ self.addEventListener('activate', (e) => {
 self.addEventListener('fetch', (e) => {
   if (e.request.method !== 'GET') return;
   e.respondWith(
-    fetch(e.request).then((res) => {
+    // cache: 'no-cache' → 폰 브라우저 캐시를 건너뛰고 항상 서버에 최신인지 확인
+    fetch(e.request, { cache: 'no-cache' }).then((res) => {
       const copy = res.clone();
       caches.open(VERSION).then((c) => c.put(e.request, copy)).catch(() => {});
       return res;

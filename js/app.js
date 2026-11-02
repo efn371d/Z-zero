@@ -278,6 +278,16 @@ show(location.hash.slice(1) || initialScreen(), { replace: true });
 if (!location.hash) history.replaceState(null, '', '#' + cur);
 
 // 오프라인·설치 지원
+// 새 버전 자동 반영: 앱을 열 때마다 새 버전이 있는지 확인하고, 있으면 한 번 새로고침
 if ('serviceWorker' in navigator && location.protocol.startsWith('http')) {
-  navigator.serviceWorker.register('sw.js').catch(() => {});
+  const hadController = !!navigator.serviceWorker.controller;
+  navigator.serviceWorker.register('sw.js', { updateViaCache: 'none' }).then((reg) => {
+    reg.update().catch(() => {});
+    document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible') reg.update().catch(() => {}); });
+  }).catch(() => {});
+  let reloaded = false;
+  navigator.serviceWorker.addEventListener('controllerchange', () => {
+    if (!hadController || reloaded) return;
+    reloaded = true; location.reload();
+  });
 }
