@@ -1,0 +1,110 @@
+/* Z-zero 앱 공용 스타일 — 화면별 디자인은 js/screens/*.js 안의 인라인 스타일 */
+@font-face {
+  font-family: 'Wanted Sans';
+  src: url('../assets/fonts/WantedSans-Variable.woff2') format('woff2');
+  font-weight: 100 900; font-style: normal; font-display: swap;
+}
+
+* { -webkit-tap-highlight-color: transparent; }
+html, body { height: 100%; }
+body {
+  margin: 0; background: #161718; color: #EDEDEB;
+  font-family: 'Wanted Sans', system-ui, sans-serif;
+  display: flex; align-items: center; justify-content: center; gap: 56px;
+  overflow: hidden; overscroll-behavior: none;
+}
+button { font-family: inherit; }
+
+/* ---------- 데스크톱: 폰 프레임 ---------- */
+.stage { display: flex; align-items: center; justify-content: center; }
+.device {
+  width: 410px; height: 864px; border-radius: 56px; background: #050505; padding: 10px; box-sizing: border-box;
+  box-shadow: 0 0 0 2px #2a2c2f, 0 40px 120px rgba(0,0,0,.6); transform-origin: center;
+}
+.phone {
+  position: relative; width: 390px; height: 844px; border-radius: 46px; overflow: hidden; background: #0D0E0F;
+  transform-origin: top left; user-select: none; -webkit-user-select: none;
+}
+.phone a { color: inherit; text-decoration: none; }
+.phone button { cursor: pointer; }
+.phone input { user-select: text; -webkit-user-select: text; }
+
+/* 화면 바로가기 */
+#jump { width: 200px; max-height: 92vh; overflow: auto; font-size: 13px; }
+#jump h1 { font-size: 18px; margin: 0 0 4px; }
+#jump p { margin: 0 0 18px; color: #8b8d90; font-size: 12px; }
+#jump .ng { color: #D4EE3B; font-weight: 700; font-size: 12px; margin: 16px 0 6px; letter-spacing: .04em; }
+#jump a { display: block; color: #a9abad; text-decoration: none; padding: 6px 10px; border-radius: 10px; }
+#jump a:hover { background: #222426; }
+#jump a.cur { background: #D4EE3B; color: #0D0E0F; font-weight: 700; }
+#jump .tools { margin-top: 18px; display: flex; flex-direction: column; gap: 6px; }
+#jump .tools button { background: #222426; color: #EDEDEB; border: 0; border-radius: 10px; padding: 8px 10px; text-align: left; font-size: 12px; cursor: pointer; }
+
+/* ---------- 모바일 (실제 폰): 전체 화면 ---------- */
+body.mobile { display: block; background: #0D0E0F; gap: 0; }
+body.mobile #jump { display: none; }
+body.mobile .stage { display: block; }
+body.mobile .device { width: auto; height: auto; border-radius: 0; padding: 0; background: none; box-shadow: none; }
+body.mobile .phone { border-radius: 0; }
+body.mobile .statusbar { visibility: hidden; } /* 폰 자체 상태바를 사용 */
+
+/* ---------- 화면 ---------- */
+.screen { position: absolute; inset: 0; opacity: 0; transform: translateX(18px); transition: opacity .28s ease, transform .28s ease; }
+.screen.on { opacity: 1; transform: none; }
+.screen.back { transform: translateX(-18px); }
+.root {
+  width: 100%; height: 100%; box-sizing: border-box; background: #0D0E0F; color: #EDEDEB;
+  font-family: 'Wanted Sans', system-ui, sans-serif; font-size: 14px; line-height: 1.4;
+  position: relative; overflow: hidden; -webkit-font-smoothing: antialiased;
+}
+[data-act] { cursor: pointer; }
+.press:active, .phone a:active, .phone button:active { filter: brightness(.92); }
+
+/* ---------- 토스트 ---------- */
+.toast {
+  position: absolute; left: 50%; top: 64px; transform: translate(-50%, -8px); max-width: 330px;
+  background: #EDEDEB; color: #0D0E0F; font-weight: 700; font-size: 13px; padding: 10px 16px; border-radius: 20px;
+  opacity: 0; transition: .25s; z-index: 80; pointer-events: none; text-align: center;
+}
+.toast.on { opacity: 1; transform: translate(-50%, 0); }
+
+/* ---------- 바텀 시트 ---------- */
+.sheet-bg { position: absolute; inset: 0; background: rgba(0,0,0,.55); z-index: 60; opacity: 0; transition: opacity .25s; }
+.sheet-bg.on { opacity: 1; }
+.sheet {
+  position: absolute; left: 8px; right: 8px; bottom: 8px; z-index: 61; max-height: 86%; overflow: auto;
+  background: #1A1B1C; border: 1px solid rgba(255,255,255,0.09); border-radius: 32px; padding: 10px 20px 20px; box-sizing: border-box;
+  transform: translateY(110%); transition: transform .3s cubic-bezier(.3,.7,.2,1);
+  font-family: 'Wanted Sans', system-ui, sans-serif; color: #EDEDEB;
+}
+.sheet.on { transform: none; }
+.sheet .grip { width: 40px; height: 4px; border-radius: 2px; background: rgba(255,255,255,0.2); margin: 0 auto 14px; }
+.sheet h3 { margin: 0 0 6px; font-size: 22px; font-weight: 700; letter-spacing: -0.03em; }
+.sheet p { margin: 0 0 16px; color: rgba(237,237,235,0.62); font-size: 14px; line-height: 1.5; }
+.sheet .acts { display: flex; flex-direction: column; gap: 8px; margin-top: 18px; }
+.sheet input[type=search], .sheet input[type=text] {
+  width: 100%; height: 52px; box-sizing: border-box; border-radius: 18px; border: 1px solid rgba(255,255,255,0.12);
+  background: rgba(255,255,255,0.05); color: #EDEDEB; padding: 0 16px; font: 500 16px 'Wanted Sans', system-ui, sans-serif; outline: none;
+}
+.sheet input:focus { border-color: #D4EE3B; }
+
+/* 클립 재생 */
+.clipov { position: absolute; inset: 0; background: #000; z-index: 70; display: none; }
+.clipov.on { display: block; }
+.clipov img { width: 100%; height: 100%; object-fit: cover; animation: zoom 3.2s linear; }
+.clipov .bar { position: absolute; left: 20px; right: 20px; top: 60px; height: 4px; border-radius: 2px; background: rgba(255,255,255,.25); }
+.clipov .bar i { display: block; height: 100%; width: 0; background: #D4EE3B; border-radius: 2px; animation: prog 3.2s linear forwards; }
+.clipov .cap { position: absolute; left: 20px; bottom: 40px; font: 700 22px 'Wanted Sans', system-ui; color: #fff; text-shadow: 0 2px 12px rgba(0,0,0,.6); }
+.clipov .cap small { display: block; font-size: 13px; font-weight: 600; opacity: .7; }
+.clipov button { position: absolute; right: 20px; top: 76px; width: 44px; height: 44px; border-radius: 22px; border: 0; background: rgba(13,14,15,.5); color: #fff; font-size: 22px; }
+@keyframes prog { to { width: 100%; } }
+@keyframes zoom { from { transform: scale(1.08); } to { transform: scale(1); } }
+
+/* 화면 잠금 */
+.lockov { position: absolute; inset: 0; z-index: 75; background: rgba(13,14,15,.82); backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 14px; font-family: 'Wanted Sans', system-ui; }
+.lockov .ring { width: 96px; height: 96px; border-radius: 48px; border: 2px solid rgba(255,255,255,.2); display: flex; align-items: center; justify-content: center; }
+.lockov span { color: rgba(237,237,235,.62); font-size: 14px; font-weight: 600; }
+
+@keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: .35; } }
+.blink { animation: pulse 1.2s ease-in-out infinite; }
+@keyframes spin { to { transform: rotate(360deg); } }
