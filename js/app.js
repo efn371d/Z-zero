@@ -251,8 +251,11 @@ function fit() {
 window.addEventListener('resize', fit); fit();
 
 // ---------------- 데스크톱 바로가기 ----------------
+// 화면 바로가기는 발표·시연용: 주소 끝에 ?demo 를 붙였을 때만 보임 (예: .../Z-zero/?demo)
+const DEMO_NAV = new URLSearchParams(location.search).has('demo');
 function buildJump() {
   const j = document.getElementById('jump');
+  if (!DEMO_NAV) { j.style.display = 'none'; return; }
   j.innerHTML = `<h1>Z-zero</h1><p>${t('데모 · 화면 바로가기')}</p>` +
     GROUPS.map(([g, ids]) => `<div class="ng">${t(g)}</div>` + ids.map((id) => `<a href="#${id}" data-nav="${id}">${t(NAMES[id])}</a>`).join('')).join('') +
     `<div class="tools"><button type="button" data-tool="lang">${t('English로 보기')}</button><button type="button" data-tool="reset">${t('데모 처음부터')}</button></div>`;
