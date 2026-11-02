@@ -5,6 +5,7 @@ import { analyze, sportById, MODES } from '../data.js';
 let view = null;     // { y, m } 보고 있는 달
 let sel = null;      // 선택한 날짜 (자정 기준 ms)
 let mode = 'month';  // 'month' | 'week'
+let seen = 0;        // 마지막으로 본 기록 수 (새 운동이 생기면 그날로 이동)
 
 const GL = 'background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.09); backdrop-filter: blur(24px); -webkit-backdrop-filter: blur(24px);';
 const ic = (d, c = '#0D0E0F', sz = 16) => `<svg width="${sz}" height="${sz}" viewBox="0 0 20 20" fill="none" stroke="${c}" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${d}</svg>`;
@@ -57,8 +58,8 @@ function card(s, x) {
   const a = analyze(x, s.settings.threshold), d = new Date(x.start);
   const when = d.toLocaleDateString(loc(), { day: 'numeric', weekday: 'short' }) + ' · ' + d.toLocaleTimeString(loc(), { hour: 'numeric', minute: '2-digit' });
   return `<a href="#Summary" data-act="open" data-id="${x.id}" style="position: relative; border-radius: 28px; background: #EDEDEB; color: #0D0E0F; padding: 16px; display: flex; flex-direction: column; gap: 10px; flex: none">
-    <span style="display: flex; gap: 6px; align-items: center"><span style="height: 30px; padding: 0 12px; border-radius: 15px; background: rgba(13,14,15,0.08); font-size: 12px; font-weight: 600; font-variant-numeric: tabular-nums; display: flex; align-items: center">${when}</span>${x.saved ? `<span style="height: 30px; padding: 0 10px; border-radius: 15px; background: #D4EE3B; font-size: 12px; font-weight: 700; display: flex; align-items: center">${t('보관')}</span>` : ''}</span>
-    <span style="display: flex; flex-direction: column"><span style="font-size: 20px; font-weight: 700; letter-spacing: -0.02em">${t(sportById(x.sport).name)} · ${t((MODES[x.mode] || MODES.match).name)}</span><span style="display: flex; gap: 14px; margin-top: 6px; font-size: 13px; font-weight: 700; font-variant-numeric: tabular-nums"><span style="display: flex; align-items: center; gap: 5px" title="${t('운동 시간')}">${ic(I.play)}${fmt(x.duration)}</span><span style="display: flex; align-items: baseline; gap: 4px"><span style="font-size: 11px; font-weight: 600; color: rgba(13,14,15,0.55)">${t('경고')}</span>${x.alerts.length}</span><span style="display: flex; align-items: baseline; gap: 4px"><span style="font-size: 11px; font-weight: 600; color: rgba(13,14,15,0.55)">${t('조임')}</span>${x.dialTurns}</span><span style="display: flex; align-items: baseline; gap: 4px"><span style="font-size: 11px; font-weight: 600; color: rgba(13,14,15,0.55)">${t('점수')}</span>${a.score}</span></span></span>
+    <span style="display: flex; gap: 6px; align-items: center"><span style="height: 30px; padding: 0 12px; border-radius: 15px; background: rgba(13,14,15,0.08); font-size: 12px; font-weight: 600; font-variant-numeric: tabular-nums; display: flex; align-items: center">${when}</span>${x.real ? '' : `<span style="height: 30px; padding: 0 10px; border-radius: 15px; background: rgba(13,14,15,0.08); font-size: 12px; font-weight: 700; display: flex; align-items: center; color: rgba(13,14,15,0.55)">${t('예시')}</span>`}${x.saved ? `<span style="height: 30px; padding: 0 10px; border-radius: 15px; background: #D4EE3B; font-size: 12px; font-weight: 700; display: flex; align-items: center">${t('보관')}</span>` : ''}</span>
+    <span style="display: flex; flex-direction: column"><span style="font-size: 20px; font-weight: 700; letter-spacing: -0.02em">${t(sportById(x.sport).name)} · ${t((MODES[x.mode] || MODES.match).name)}</span><span style="display: flex; gap: 14px; margin-top: 6px; font-size: 13px; font-weight: 700; font-variant-numeric: tabular-nums"><span style="display: flex; align-items: center; gap: 5px" title="${t('운동 시간')}">${ic(I.play)}${fmt(x.duration)}</span><span style="display: flex; align-items: baseline; gap: 4px"><span style="font-size: 12px; font-weight: 600; color: rgba(13,14,15,0.55)">${t('경고')}</span>${x.alerts.length}</span><span style="display: flex; align-items: baseline; gap: 4px"><span style="font-size: 12px; font-weight: 600; color: rgba(13,14,15,0.55)">${t('다이얼 조임')}</span>${x.dialTurns}</span><span style="display: flex; align-items: baseline; gap: 4px"><span style="font-size: 12px; font-weight: 600; color: rgba(13,14,15,0.55)">${t('점수')}</span>${a.score}</span></span></span>
     <span style="position: absolute; right: 14px; top: 14px"><span style="width: 44px; height: 44px; flex: none; border-radius: 22px; background: #0D0E0F; display: flex; align-items: center; justify-content: center">${ic(I.go, AC, 20)}</span></span>
   </a>`;
 }
@@ -77,6 +78,7 @@ export default {
   id: 'History',
   render: (s) => {
     if (!view) { const now = new Date(); view = { y: now.getFullYear(), m: now.getMonth() }; }
+    if (s.sessions.length !== seen) { sel = null; seen = s.sessions.length; }
     if (!sel) { const last = s.sessions[s.sessions.length - 1]; sel = last ? day0(last.start) : day0(Date.now()); const d = new Date(sel); view = { y: d.getFullYear(), m: d.getMonth() }; }
     const list = (byDay(s)[sel] || []).slice().reverse();
     const selD = new Date(sel);

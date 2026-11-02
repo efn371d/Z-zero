@@ -56,8 +56,12 @@ export function tabBar(screenId) {
 }
 
 /** 다리 아이콘 (side: 'L' | 'R'), 원본 디자인의 종아리 실루엣 */
-export function legIcon(side, color = FG, w = 12.8, h = 20) {
+export function legIcon(side, color = FG, w = 12.8, h = 20, letter = false) {
   const flip = side === 'L' ? ' transform="translate(16,0) scale(-1,1)"' : '';
+  const tag = letter ? `<span style="font-size: ${Math.max(10, Math.round(h * 0.55))}px; font-weight: 800; line-height: 1; opacity: 0.55; margin-left: 1px; font-family: 'Wanted Sans', system-ui, sans-serif">${side}</span>` : '';
+  return tag ? `<span style="display: inline-flex; align-items: flex-end; gap: 1px">${legSvg(side, color, w, h, flip)}${tag}</span>` : legSvg(side, color, w, h, flip);
+}
+function legSvg(side, color, w, h, flip) {
   return `<svg width="${w}" height="${h}" viewBox="0 0 16 25" aria-hidden="true"><g${flip}><path d="M2.6 1h7.2l.4 7.2-.5 7.6.6 3.1 4.6 1.9c.9.4 1 1.9.1 2.4l-.5.3H4.2c-.8 0-1.3-.6-1.2-1.4l.6-3.4C1.8 14.6.9 10.4 1.6 6.4z" fill="${color}"></path></g></svg>`;
 }
 

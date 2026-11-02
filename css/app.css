@@ -73,7 +73,7 @@ body.mobile .statusbar { visibility: hidden; } /* 폰 자체 상태바를 사용
 
 /* ---------- 토스트 ---------- */
 .toast {
-  position: absolute; left: 50%; top: 64px; transform: translate(-50%, -8px); max-width: 330px;
+  position: absolute; left: 50%; bottom: 112px; transform: translate(-50%, -8px); max-width: 330px;
   background: #EDEDEB; color: #0D0E0F; font-weight: 700; font-size: 13px; padding: 10px 16px; border-radius: 20px;
   opacity: 0; transition: .25s; z-index: 80; pointer-events: none; text-align: center;
 }
@@ -113,9 +113,10 @@ body.mobile .statusbar { visibility: hidden; } /* 폰 자체 상태바를 사용
 @keyframes zoom { from { transform: scale(1.08); } to { transform: scale(1); } }
 
 /* 화면 잠금 */
-.lockov { position: absolute; inset: 0; z-index: 75; background: rgba(13,14,15,.82); backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 14px; font-family: 'Wanted Sans', system-ui; }
-.lockov .ring { width: 96px; height: 96px; border-radius: 48px; border: 2px solid rgba(255,255,255,.2); display: flex; align-items: center; justify-content: center; }
-.lockov span { color: rgba(237,237,235,.62); font-size: 14px; font-weight: 600; }
+/* 잠금: 화면은 그대로 보이고 터치만 막음. 아래쪽 버튼을 길게 눌러 해제 */
+.lockov { position: absolute; inset: 0; z-index: 75; background: rgba(13,14,15,.15); display: flex; flex-direction: column; align-items: center; justify-content: flex-end; gap: 10px; padding-bottom: 40px; font-family: 'Wanted Sans', system-ui; }
+.lockov .ring { width: 72px; height: 72px; border-radius: 36px; border: 2px solid rgba(255,255,255,.35); background: rgba(13,14,15,.85); display: flex; align-items: center; justify-content: center; }
+.lockov span { color: #EDEDEB; font-size: 13px; font-weight: 700; background: rgba(13,14,15,.85); padding: 6px 12px; border-radius: 14px; }
 
 @keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: .35; } }
 .blink { animation: pulse 1.2s ease-in-out infinite; }

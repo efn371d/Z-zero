@@ -25,7 +25,7 @@ ${loopVideo('welcome', 'opacity: 0.55; filter: saturate(0.9)')}
 ${statusBar()}<div style="position: absolute; inset: 0; padding: 58px 20px 34px; display: flex; flex-direction: column; gap: 16px">
 
   <div style="display: flex; justify-content: flex-end; height: 44px; align-items: center">
-    <span aria-label="${t("1 / 3 단계")}" style="display: flex; gap: 5px"><span style="width: 22px; height: 5px; border-radius: 3px; background: #D4EE3B"></span><span style="width: 8px; height: 5px; border-radius: 3px; background: rgba(255,255,255,0.25)"></span><span style="width: 8px; height: 5px; border-radius: 3px; background: rgba(255,255,255,0.25)"></span></span>
+    
   </div>
 
   <div style="flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 22px; padding-bottom: 20px">
@@ -41,7 +41,7 @@ ${statusBar()}<div style="position: absolute; inset: 0; padding: 58px 20px 34px;
 <span style="position: absolute; left: 50%; top: 7px; width: 3px; height: 14px; margin-left: -1.5px; border-radius: 2px; background: #0D0E0F"></span>
 </span>
 </span></a>
-    <span style="font-size: 13px; font-weight: 700; color: rgba(237,237,235,0.62)">${t("돌려서 시작")}</span>
+    <span style="font-size: 13px; font-weight: 700; color: rgba(237,237,235,0.62)">${t("돌리거나 탭해서 시작")}</span>
   </div>
 
 </div>

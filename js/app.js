@@ -1,7 +1,7 @@
 // 앱 본체: 화면 전환(라우터), 버튼 처리, 시뮬레이터 구동, 토스트·시트
 import { store, DEFAULTS } from './store.js';
 import { t, esc, btnPrimary, btnGhost } from './ui.js';
-import { seedSessions, finalize } from './data.js';
+import { seedSessions, finalize, MODES } from './data.js';
 import { stepModel, newLive, applyDial, snooze } from './sim.js';
 
 import Welcome from './screens/welcome.js';
@@ -212,6 +212,26 @@ setInterval(() => {
     if (L.crampFlag) {
       store.set((st) => { st.live.crampFlag = null; }, { silent: true });
       app.vibrate([400, 100, 400]); toast(t('쥐 감지 · 잠시 쉬어요'), 2400);
+    }
+    // 경기 시간 안내: 전반 끝 / 정해진 시간 끝
+    const m = MODES[L.mode] || MODES.match;
+    if (m.halves === 2 && !L.halfNote && L.t >= m.plan / 2) {
+      store.set((st) => { st.live.halfNote = true; }, { silent: true });
+      app.vibrate([100, 60, 100]); toast(t('전반 끝 · 이제 후반이에요'), 2600);
+    }
+    if (!L.endNote && L.t >= m.plan && !L.alertActive && (cur === 'Live' || cur === 'CamRec')) {
+      store.set((st) => { st.live.endNote = true; }, { silent: true });
+      app.vibrate([100, 60, 100, 60, 100]);
+      sheet({ title: t('정해둔 운동 시간이 끝났어요'), body: `<p>${t('{m} 운동을 마쳤어요. 여기서 끝내고 분석을 볼까요?', { m: t(m.sub) })}</p>`, actions: [
+        { label: t('끝내고 분석 보기'), primary: true, onClick: () => { const id = app.endWorkout(); if (id) app.go('Summary', { replace: true, params: { sid: id } }); } },
+        { label: t('더 할래요') },
+      ] });
+    }
+    // 인사이트에서 켠 '미리 알림': 지난번 지쳤던 시간 4분 전에 다이얼 미리 조이라고 알려줌
+    const pre = store.get().settings.preAlert;
+    if (pre && !L.preNote && L.t >= pre.min * 60) {
+      store.set((st) => { st.live.preNote = true; }, { silent: true });
+      app.vibrate([150, 80, 150]); toast(t('{side} 다이얼 ½바퀴 미리 조일 시간이에요', { side: t(pre.side === 'L' ? '왼쪽' : '오른쪽') }), 3200);
     }
     if (L.alertActive) {
       const key = L.alertActive.t;

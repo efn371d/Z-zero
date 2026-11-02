@@ -126,13 +126,13 @@ export function runOffline({ sport, mode, start, duration, seed, threshold = 60 
     }
   }
   delete live._resp;
-  return finalize(live);
+  return { ...finalize(live), real: false }; // 데모(예시) 기록
 }
 
 /** 진행 중 기록 → 저장용 기록 */
 export function finalize(live) {
   return {
-    id: 's' + live.startedAt,
+    id: 's' + live.startedAt, real: true,
     sport: live.sport, mode: live.mode,
     start: live.startedAt, duration: Math.round(live.t),
     series: live.series, alerts: live.alerts, dialTurns: live.dialTurns, cramps: live.cramps,

@@ -46,11 +46,11 @@ ${statusBar()}<div style="position: absolute; inset: 0; padding: 58px 20px 34px;
   </ol>
 
   <div style="border-radius: 24px; background: ${measured ? '#EDEDEB' : 'rgba(255,255,255,0.05)'}; border: 1px solid ${measured ? 'transparent' : 'rgba(255,255,255,0.09)'}; color: ${measured ? '#0D0E0F' : '#EDEDEB'}; padding: 14px 16px; display: flex; gap: 14px; align-items: center; transition: background .4s">
-    <span style="display: flex; flex-direction: column; min-width: 92px"><span style="font-size: 30px; font-weight: 700; line-height: 1.1; font-variant-numeric: tabular-nums; letter-spacing: -0.03em; white-space: nowrap" data-b="rest">${measured ? measured : '8–15'}</span><span style="font-size: 12px; font-weight: 500; opacity: 0.62">${t(measured ? "기준값 mmHg" : "휴식 시 mmHg")}</span></span>
-    <span style="font-size: 12.5px; line-height: 1.45; opacity: 0.72">${t(measured ? "이 값을 부하 0%로 잡아요. 운동 중 종아리가 지쳐 부풀면 다이얼을 미는 압력이 올라가고, 오른 만큼이 부하 %가 돼요." : "가만히 서 있을 때 종아리가 다이얼을 미는 압력을 재서, 운동 중 부하를 계산하는 기준으로 써요.")}</span>
+    <span style="display: flex; flex-direction: column; min-width: 92px"><span style="font-size: 30px; font-weight: 700; line-height: 1.1; font-variant-numeric: tabular-nums; letter-spacing: -0.03em; white-space: nowrap" data-b="rest">${step === 4 ? mLeft : measured ? measured : '8–15'}</span><span style="font-size: 12px; font-weight: 500; opacity: 0.62">${t(step === 4 ? "초 남음" : measured ? "기준값 mmHg" : "보통 범위 mmHg")}</span></span>
+    <span style="font-size: 12.5px; line-height: 1.45; opacity: 0.72">${t(step === 4 ? "가만히 서 계세요. 움직이면 다시 재야 해요." : measured ? "이 값을 부하 0%로 잡아요. 운동 중 종아리가 지쳐 부풀면 다이얼을 미는 압력이 올라가고, 오른 만큼이 부하 %가 돼요." : "가만히 서 있을 때 종아리가 다이얼을 미는 압력을 재서, 운동 중 부하를 계산하는 기준으로 써요.")}</span>
   </div>
 
-  <div style="margin-top: auto"><a href="#Main" data-act="next" style="height: 56px; box-sizing: border-box; padding: 0 6px; border-radius: 28px; background: #D4EE3B; color: #0D0E0F; display: flex; align-items: center; font-size: 16px; font-weight: 700"><span style="flex: 1; text-align: center; padding-left: 44px" data-b="cta">${t(CTA[step])}</span><span style="width: 44px; height: 44px; flex: none; border-radius: 22px; background: #0D0E0F; display: flex; align-items: center; justify-content: center"><svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="#D4EE3B" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 10h12M11 5l5 5-5 5"/></svg></span></a></div>
+  <div style="margin-top: auto"><a href="#Main" data-act="next" style="opacity: ${step === 4 ? 0.45 : 1}; pointer-events: ${step === 4 ? 'none' : 'auto'}; height: 56px; box-sizing: border-box; padding: 0 6px; border-radius: 28px; background: #D4EE3B; color: #0D0E0F; display: flex; align-items: center; font-size: 16px; font-weight: 700"><span style="flex: 1; text-align: center; padding-left: 44px" data-b="cta">${t(CTA[step])}</span><span style="width: 44px; height: 44px; flex: none; border-radius: 22px; background: #0D0E0F; display: flex; align-items: center; justify-content: center"><svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="#D4EE3B" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 10h12M11 5l5 5-5 5"/></svg></span></a></div>
 
 </div>
 </div>
@@ -64,7 +64,7 @@ ${statusBar()}<div style="position: absolute; inset: 0; padding: 58px 20px 34px;
         clearInterval(mTimer);
         mTimer = setInterval(() => {
           mLeft--;
-          const c = document.querySelector('.screen.on [data-b="count"]'); if (c) c.textContent = mLeft;
+          document.querySelectorAll('.screen.on [data-b="count"], .screen.on [data-b="rest"]').forEach((c) => (c.textContent = mLeft));
           if (mLeft <= 0) {
             clearInterval(mTimer); step = 5; measured = 11 + Math.round(Math.random() * 3);
             app.store.set((s) => { s.sleeves.zeroed = true; s.sleeves.restMmHg = measured; });

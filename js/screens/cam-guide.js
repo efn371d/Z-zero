@@ -2,7 +2,7 @@ import { t, statusBar, loopVideo } from '../ui.js';
 
 export default {
   id: 'CamGuide',
-  render: (s) => `
+  render: (s, app) => `
 <div class="root">
 <div aria-hidden="true" style="position: absolute; left: -120px; top: -160px; width: 520px; height: 420px; border-radius: 50%; background: radial-gradient(closest-side, rgba(212,238,59,0.09), rgba(0,0,0,0))"></div>
 ${statusBar()}<div style="position: absolute; inset: 0; padding: 58px 20px 34px; display: flex; flex-direction: column; gap: 16px">
@@ -29,7 +29,7 @@ ${loopVideo('cam-moving', 'object-position: 40% 60%', 'aria-label="' + t('드리
   </div>
   <div style="display: flex; justify-content: center; gap: 8px"><span style="height: 30px; padding: 0 12px; box-sizing: border-box; border-radius: 15px; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.09); backdrop-filter: blur(24px); -webkit-backdrop-filter: blur(24px); color: #EDEDEB; font-size: 12px; font-weight: 600; display: inline-flex; align-items: center; gap: 6px; white-space: nowrap; flex: none"><svg width="14" height="14" viewBox="0 0 20 20" fill="none" stroke="#EDEDEB" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2.5" y="5.5" width="15" height="10.5" rx="2.6"/><circle cx="10" cy="10.75" r="2.8"/><path d="M7 5.5l1.2-2h3.6l1.2 2"/></svg>${t("3초 클립")}</span><span style="height: 30px; padding: 0 12px; box-sizing: border-box; border-radius: 15px; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.09); backdrop-filter: blur(24px); -webkit-backdrop-filter: blur(24px); color: #EDEDEB; font-size: 12px; font-weight: 600; display: inline-flex; align-items: center; gap: 6px; white-space: nowrap; flex: none"><svg width="14" height="14" viewBox="0 0 20 20" fill="none" stroke="#EDEDEB" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4.5" y="9" width="11" height="8" rx="2"/><path d="M7 9V6.5a3 3 0 016 0V9"/></svg>${t("얼굴 X")}</span><span style="height: 30px; padding: 0 12px; box-sizing: border-box; border-radius: 15px; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.09); backdrop-filter: blur(24px); -webkit-backdrop-filter: blur(24px); color: #EDEDEB; font-size: 12px; font-weight: 600; display: inline-flex; align-items: center; gap: 6px; white-space: nowrap; flex: none"><svg width="14" height="14" viewBox="0 0 20 20" fill="none" stroke="#EDEDEB" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4.5 10.5l3.5 3.5 7.5-8"/></svg>${t("폰에만 저장")}</span></div>
 
-  <div style="margin-top: auto"><a href="#CamRec" data-act="rec" style="height: 56px; box-sizing: border-box; padding: 0 22px 0 6px; border-radius: 28px; background: #D4EE3B; color: #0D0E0F; display: flex; align-items: center; font-size: 16px; font-weight: 700"><span style="width: 44px; height: 44px; flex: none; border-radius: 22px; background: #0D0E0F; display: flex; align-items: center; justify-content: center"><svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="#D4EE3B" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2.5" y="5.5" width="15" height="10.5" rx="2.6"/><circle cx="10" cy="10.75" r="2.8"/><path d="M7 5.5l1.2-2h3.6l1.2 2"/></svg></span><span style="flex: 1; text-align: center; padding: 0 0px 0 0px">${t("촬영 시작")}</span></a></div>
+  <div style="margin-top: auto"><a href="#CamRec" data-act="${app.params.camTest ? 'testdone' : 'rec'}" style="height: 56px; box-sizing: border-box; padding: 0 22px 0 6px; border-radius: 28px; background: #D4EE3B; color: #0D0E0F; display: flex; align-items: center; font-size: 16px; font-weight: 700"><span style="width: 44px; height: 44px; flex: none; border-radius: 22px; background: #0D0E0F; display: flex; align-items: center; justify-content: center"><svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="#D4EE3B" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2.5" y="5.5" width="15" height="10.5" rx="2.6"/><circle cx="10" cy="10.75" r="2.8"/><path d="M7 5.5l1.2-2h3.6l1.2 2"/></svg></span><span style="flex: 1; text-align: center; padding: 0 0px 0 0px">${t(app.params.camTest ? "각도 확인했어요" : "운동 시작 · 카메라 켜짐")}</span></a></div>
 
 </div>
 </div>
@@ -37,6 +37,7 @@ ${loopVideo('cam-moving', 'object-position: 40% 60%', 'aria-label="' + t('드리
   help: { title: '발 카메라', body: '다이얼 아래 카메라가 정강이 바깥쪽에서 발을 비춰요. 렌즈를 발 쪽으로 30–45° 기울여 주세요. 터치·턴·착지 순간만 3초 클립으로 저장하고, 얼굴은 찍히지 않으며, 영상은 폰에만 저장돼요.' },
   actions: {
     preview: (b, app) => app.playClip(b.dataset.img, t(b.dataset.cap)),
+    testdone: (b, app) => { app.toast(t('카메라 각도 확인 완료')); app.back('Settings'); },
     rec: (b, app) => {
       if (!app.s.live) app.startWorkout();
       app.store.set((s) => { s.live.camOn = true; s.live.recPaused = false; });
