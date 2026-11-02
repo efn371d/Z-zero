@@ -10,7 +10,6 @@
 // 경고: max(왼, 오) ≥ 경고 기준 + 민감도 보정(낮음 +5 / 보통 0 / 높음 −5)
 
 export const CLIP_LABELS = ['턴', '급정지', '착지', '인사이드 터치', '아웃사이드 터치', '킥'];
-export const CLIP_IMGS = ['assets/img/cam-dribble.jpg', 'assets/img/cam-live-turf.jpg', 'assets/img/cam-standing.jpg'];
 const SENS = { low: 5, normal: 0, high: -5 };
 const FACTOR = { futsal: 1, running: 0.85, soccer: 1, basketball: 1.05, tennis: 0.95, badminton: 0.9, volleyball: 0.85, hiking: 0.7, cycling: 0.6 };
 const INTENSITY = { match: 1, interval: 1.2, drills: 0.7 };
@@ -59,7 +58,7 @@ export function stepModel(live, dt, settings, rand = Math.random) {
       if (live.camOn && !live.recPaused && live.t - live.lastClipT > 90) {
         live.lastClipT = live.t;
         const i = Math.floor(rand() * CLIP_LABELS.length);
-        live.clips.push({ t: Math.round(live.t), label: CLIP_LABELS[i], img: CLIP_IMGS[i % CLIP_IMGS.length], side: live.camSide, load: Math.round(Math.max(live.L, live.R)) });
+        live.clips.push({ t: Math.round(live.t), label: CLIP_LABELS[i], side: live.camSide, load: Math.round(Math.max(live.L, live.R)) });
       }
     }
     if (live.camOn && !live.recPaused && rand() < (2.2 / 60) * d) {

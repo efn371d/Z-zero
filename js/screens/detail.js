@@ -1,4 +1,4 @@
-import { t, statusBar, fmt, legIcon, esc, AC, WARN } from '../ui.js';
+import { t, statusBar, fmt, legIcon, esc, clipMedia, AC, WARN } from '../ui.js';
 import { analyze } from '../data.js';
 
 // 종아리 상세: 부하 그래프(전체/전반/후반), 경고 순간 클립, 방향 전환·뒤꿈치 착지 지표
@@ -39,7 +39,7 @@ function clipsNear(ses, a) {
 }
 const PLAY = '<svg width="12" height="12" viewBox="0 0 20 20" fill="none" stroke="#0D0E0F" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 4.5l9 5.5-9 5.5z" fill="#0D0E0F"/></svg>';
 function clipBtn(c, i) {
-  return `<button type="button" data-act="play" data-i="${i}" style="position: relative; height: 112px; padding: 0; border: 0; border-radius: 24px; overflow: hidden; background: #1A1B1C; font-family: inherit; color: #EDEDEB; text-align: left"><img src="${c.img}" alt="" style="position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: 40% 50%"><span style="position: absolute; inset: 0; background: linear-gradient(180deg, rgba(13,14,15,0) 40%, rgba(13,14,15,0.82))"></span><span style="position: absolute; right: 8px; top: 8px; width: 28px; height: 28px; border-radius: 14px; background: #EDEDEB; display: flex; align-items: center; justify-content: center">${PLAY}</span><span style="position: absolute; left: 10px; bottom: 8px; display: flex; flex-direction: column"><span style="font-size: 12.5px; font-weight: 700">${esc(t(c.label))}</span><span style="font-size: 11px; color: rgba(237,237,235,0.62); font-variant-numeric: tabular-nums">${fmt(c.t)}</span></span></button>`;
+  return `<button type="button" data-act="play" data-i="${i}" style="position: relative; height: 112px; padding: 0; border: 0; border-radius: 24px; overflow: hidden; background: #1A1B1C; font-family: inherit; color: #EDEDEB; text-align: left"><img src="${clipMedia(c.label).poster}" alt="" style="position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: 40% 50%"><span style="position: absolute; inset: 0; background: linear-gradient(180deg, rgba(13,14,15,0) 40%, rgba(13,14,15,0.82))"></span><span style="position: absolute; right: 8px; top: 8px; width: 28px; height: 28px; border-radius: 14px; background: #EDEDEB; display: flex; align-items: center; justify-content: center">${PLAY}</span><span style="position: absolute; left: 10px; bottom: 8px; display: flex; flex-direction: column"><span style="font-size: 12.5px; font-weight: 700">${esc(t(c.label))}</span><span style="font-size: 11px; color: rgba(237,237,235,0.62); font-variant-numeric: tabular-nums">${fmt(c.t)}</span></span></button>`;
 }
 const pill = (k, label, on) => on
   ? `<button type="button" data-act="range" data-r="${k}" aria-pressed="true" style="height: 30px; padding: 0 12px; flex: none; box-sizing: border-box; border-radius: 18px; background: #EDEDEB; color: #0D0E0F; font-weight: 700; border: 0; font-family: inherit; font-size: 13px; display: flex; align-items: center; gap: 6px">${t(label)}</button>`
@@ -87,7 +87,7 @@ ${statusBar()}<div style="position: absolute; inset: 0; padding: 58px 20px 34px;
     play: (b, app) => {
       const ses = app.sessionById(app.params.sid), a = analyze(ses, app.s.settings.threshold);
       const c = clipsNear(ses, a)[+b.dataset.i];
-      app.playClip(c.img, `${esc(t(c.label))}<small>${fmt(c.t)} · ${t('부하')} ${c.load}</small>`);
+      app.playClip(clipMedia(c.label).video, `${esc(t(c.label))}<small>${fmt(c.t)} · ${t('부하')} ${c.load}</small>`);
     },
     save: (b, app) => {
       const id = app.sessionById(app.params.sid).id;

@@ -5,6 +5,17 @@
   font-weight: 100 900; font-style: normal; font-display: swap;
 }
 
+@font-face {
+  font-family: 'Zero Display';
+  src: url('../assets/fonts/teko-latin-600-normal.woff2') format('woff2');
+  font-weight: 600; font-style: normal; font-display: swap;
+}
+@font-face {
+  font-family: 'Zero Display';
+  src: url('../assets/fonts/teko-latin-700-normal.woff2') format('woff2');
+  font-weight: 700; font-style: normal; font-display: swap;
+}
+
 * { -webkit-tap-highlight-color: transparent; }
 html, body { height: 100%; }
 body {
@@ -91,7 +102,8 @@ body.mobile .statusbar { visibility: hidden; } /* 폰 자체 상태바를 사용
 /* 클립 재생 */
 .clipov { position: absolute; inset: 0; background: #000; z-index: 70; display: none; }
 .clipov.on { display: block; }
-.clipov img { width: 100%; height: 100%; object-fit: cover; animation: zoom 3.2s linear; }
+.clipov img, .clipov video { width: 100%; height: 100%; object-fit: cover; }
+.clipov img { animation: zoom 3.2s linear; }
 .clipov .bar { position: absolute; left: 20px; right: 20px; top: 60px; height: 4px; border-radius: 2px; background: rgba(255,255,255,.25); }
 .clipov .bar i { display: block; height: 100%; width: 0; background: #D4EE3B; border-radius: 2px; animation: prog 3.2s linear forwards; }
 .clipov .cap { position: absolute; left: 20px; bottom: 40px; font: 700 22px 'Wanted Sans', system-ui; color: #fff; text-shadow: 0 2px 12px rgba(0,0,0,.6); }
@@ -108,3 +120,11 @@ body.mobile .statusbar { visibility: hidden; } /* 폰 자체 상태바를 사용
 @keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: .35; } }
 .blink { animation: pulse 1.2s ease-in-out infinite; }
 @keyframes spin { to { transform: rotate(360deg); } }
+
+/* 다이얼 연결 애니메이션 */
+@keyframes hop { 0%, 100% { transform: translateY(0) scale(1); } 30% { transform: translateY(-14px) scale(1.04); } 55% { transform: translateY(0) scale(0.97); } 70% { transform: translateY(-4px) scale(1.01); } }
+@keyframes ripple { from { transform: scale(0.9); opacity: 0.7; } to { transform: scale(1.6); opacity: 0; } }
+.hop { animation: hop 1.1s cubic-bezier(.3,.7,.3,1) infinite; }
+.ripple { animation: ripple 1.6s ease-out infinite; }
+@keyframes rise { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: none; } }
+.rise { animation: rise .9s cubic-bezier(.2,.7,.2,1) both; }

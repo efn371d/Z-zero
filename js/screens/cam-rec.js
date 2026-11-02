@@ -8,7 +8,7 @@ export default {
 <div class="root">
 <div aria-hidden="true" style="position: absolute; left: -120px; top: -160px; width: 520px; height: 420px; border-radius: 50%; background: radial-gradient(closest-side, rgba(212,238,59,0.09), rgba(0,0,0,0))"></div>
 
-<img src="assets/img/cam-live-turf.jpg" alt="${t('다이얼 카메라 실시간 화면')}" data-b="feed" style="transition: transform .4s ease; position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: 38% 50%">
+<video src="assets/video/feed.mp4" poster="assets/video/feed.jpg" autoplay muted loop playsinline alt="${t('다이얼 카메라 실시간 화면')}" data-b="feed" style="transition: transform .4s ease; position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: 38% 50%"></video>
 <div style="position: absolute; inset: 0; background: linear-gradient(180deg, rgba(13,14,15,0.55) 0%, rgba(13,14,15,0) 22%, rgba(13,14,15,0) 50%, rgba(13,14,15,0.85) 100%)"></div>
 ${statusBar()}
 <div style="position: absolute; left: 20px; right: 20px; top: 58px; display: flex; justify-content: space-between; align-items: center">
@@ -50,6 +50,7 @@ ${statusBar()}
       const dot = el.querySelector('[data-b="dot"]'); dot.classList.toggle('blink', !p); dot.style.background = p ? 'rgba(237,237,235,0.62)' : '#F0803A';
       el.querySelector('[data-b="recl"]').textContent = p ? 'II' : 'REC';
       b.innerHTML = p ? '<svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="#EDEDEB" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M7 4.5l9 5.5-9 5.5z" fill="#EDEDEB"/></svg>' : '<svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="#EDEDEB" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M7 4.5v11M13 4.5v11"/></svg>';
+      const v = el.querySelector('video'); if (v) { if (p) v.pause(); else v.play().catch(() => {}); }
       app.toast(t(p ? '촬영 일시정지' : '촬영 재개'));
     },
     stop: (b, app) => {

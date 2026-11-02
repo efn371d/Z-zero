@@ -47,7 +47,10 @@ js/data.js              종목 목록, 분석 계산(점수·회복 플랜), 데
 js/ui.js                공용 조각 (상태바, 하단 탭, 다리 아이콘, 슬리브 그림)
 js/lang-en.js           영어 번역 (한국어 → 영어)
 js/screens/*.js         화면 15개 — 화면 하나 = 파일 하나
-assets/img, fonts, icons 사진 · Wanted Sans 폰트 · 앱 아이콘
+assets/img              사진 (Higgsfield 렌더에서 잘라 씀)
+assets/video            3초 영상 (촬영 화면, 카메라 안내, 클립, 시작 화면 배경)
+assets/fonts            Wanted Sans(본문) · Teko(브랜드 글자·큰 숫자)
+assets/icons            앱 아이콘 (Z 로고)
 ```
 
 ## 자주 하는 수정
@@ -56,7 +59,8 @@ assets/img, fonts, icons 사진 · Wanted Sans 폰트 · 앱 아이콘
 - **기본 경고 기준 등 기본값**: `js/store.js`의 `DEFAULTS`
 - **종목 추가**: `js/data.js`의 `SPORTS` 목록 (+ `js/sim.js`의 `FACTOR`에 계수)
 - **회복 루틴 단계**: `js/data.js`의 `analyze()` 안 `plan`
-- **사진 교체**: `assets/img/`에 같은 이름으로 덮어쓰기
+- **사진·영상 교체**: `assets/img/`, `assets/video/`에 같은 이름으로 덮어쓰기 (영상은 .mp4 + 같은 이름 .jpg 썸네일)
+- **로고**: `js/ui.js`의 `logoSvg()` (도형 좌표), 브랜드 글자는 `DISPLAY` 서체
 - 수정 후 폰에 바로 반영이 안 되면 `sw.js`의 `VERSION` 숫자를 올리기 (예: `z-zero-v2`)
 
 ## 컴퓨터에서 실행해 보기

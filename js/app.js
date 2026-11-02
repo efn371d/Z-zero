@@ -64,7 +64,7 @@ export const app = {
   // ----- 운동 세션 -----
   startWorkout() {
     const { plan } = store.get();
-    store.set((s) => { s.live = newLive({ sport: plan.sport, mode: plan.mode, seed: Date.now() }); s.live.camOn = s.settings.camera; });
+    store.set((s) => { s.live = newLive({ sport: plan.sport, mode: plan.mode, seed: Date.now() }); s.live.camOn = s.settings.camera; const r = s.sleeves.restMmHg; if (r) s.live.p = { L: r, R: r }; });
   },
   endWorkout() {
     const s = store.get();
@@ -172,15 +172,20 @@ function closeSheet(instant) {
 // ---------------- 클립 재생 ----------------
 const clipEl = document.createElement('div');
 clipEl.className = 'clipov';
-clipEl.innerHTML = '<img alt=""><div class="bar"><i></i></div><div class="cap"></div><button type="button" aria-label="Close">×</button>';
+clipEl.innerHTML = '<div class="media"></div><div class="bar"><i></i></div><div class="cap"></div><button type="button" aria-label="Close">×</button>';
 phone.appendChild(clipEl);
 let clipT;
-clipEl.querySelector('button').onclick = () => clipEl.classList.remove('on');
+const closeClip = () => { clipEl.classList.remove('on'); clipEl.querySelector('.media').innerHTML = ''; };
+clipEl.querySelector('button').onclick = closeClip;
+/** 클립 재생: .mp4면 영상(3초), 아니면 사진 */
 function playClip(src, caption = '') {
-  clipEl.querySelector('img').src = src;
+  const isVideo = /\.mp4$/.test(src);
+  clipEl.querySelector('.media').innerHTML = isVideo
+    ? `<video src="${src}" poster="${src.replace(/\.mp4$/, '.jpg')}" autoplay muted playsinline style="position:absolute;inset:0"></video>`
+    : `<img src="${src}" alt="" style="position:absolute;inset:0">`;
   clipEl.querySelector('.cap').innerHTML = caption;
   clipEl.classList.remove('on'); void clipEl.offsetWidth; clipEl.classList.add('on');
-  clearTimeout(clipT); clipT = setTimeout(() => clipEl.classList.remove('on'), 3200);
+  clearTimeout(clipT); clipT = setTimeout(closeClip, 3200);
 }
 
 // ---------------- 화면 잠금 (길게 눌러 해제) ----------------

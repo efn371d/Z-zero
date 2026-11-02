@@ -1,6 +1,10 @@
 import { t, statusBar, tabBar, fmt, esc, AC } from '../ui.js';
 import { SPORTS, sportById, sportIcon, MORE_ICON, topSport, analyze } from '../data.js';
 
+// 종목별 대표 사진
+const HERO = { futsal: 'sport-futsal', soccer: 'sport-soccer', basketball: 'sport-basketball', running: 'sport-running', tennis: 'sport-tennis', badminton: 'sport-tennis', volleyball: 'sport-tennis' };
+const heroImg = (id) => `assets/img/${HERO[id] || 'sport-generic'}.jpg`;
+
 // 운동 선택: 필터(전체/경기/훈련/회복), 가장 많이 한 종목 카드, 종목 타일, 검색
 let filter = 'all';
 const FILTERS = [['all', '전체@Select'], ['match', '경기'], ['training', '훈련'], ['recovery', '회복']];
@@ -47,7 +51,7 @@ ${statusBar()}<div style="position: absolute; inset: 0; padding: 58px 20px 34px;
 
   <div style="flex: 1; min-height: 0; overflow-y: auto; margin: 0 -20px; padding: 0 20px 110px; display: flex; flex-direction: column; gap: 16px; scrollbar-width: none">
   ${heroShown ? `<a href="#Setup" data-act="pick" data-sport="${top.id}" style="display: block; flex: none"><div style="position: relative; height: 218px; border-radius: 28px; overflow: hidden; background: #1A1B1C; flex: none">
-<img src="assets/img/sleeve-back.jpg" alt="${t('슬리브 뒷모습')}" style="position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: 50% 32%">
+<img src="${heroImg(top.id)}" alt="${t(top.name)}" style="position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: 60% 50%">
 <div style="position: absolute; inset: 0; background: linear-gradient(90deg, rgba(13,14,15,0.92) 0%, rgba(13,14,15,0.4) 55%, rgba(13,14,15,0) 100%)"></div>
 <div style="position: absolute; left: 18px; right: 18px; top: 18px; bottom: 18px; display: flex; flex-direction: column; justify-content: space-between">
   <div style="display: flex; justify-content: space-between"><span style="height: 30px; padding: 0 12px; box-sizing: border-box; border-radius: 15px; background: #EDEDEB; color: #0D0E0F; font-size: 12px; font-weight: 600; display: inline-flex; align-items: center; gap: 6px; white-space: nowrap; flex: none">${ic('<path d="M10 3l2.1 4.4 4.8.6-3.5 3.3.9 4.7L10 13.8 5.7 16l.9-4.7L3.1 8l4.8-.6z" fill="#0D0E0F"/>', '#0D0E0F')}${t(ts ? "가장 많이 함" : "추천")}</span><span style="width: 44px; height: 44px; border-radius: 22px; background: #D4EE3B; display: flex; align-items: center; justify-content: center"><svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="#0D0E0F" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 14L14 6M7.5 6H14v6.5"/></svg></span></div>

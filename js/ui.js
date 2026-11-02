@@ -93,3 +93,31 @@ export function sleeveSvg(side, { w = 125, h = 250, id = 'sv' + side, opacity = 
 <circle cx="39" cy="29" r="1.3" fill="#55595E"></circle>
 </g></svg>`;
 }
+
+/** 브랜드 서체 (Teko) — 로고 글자와 큰 숫자에 사용 */
+export const DISPLAY = "'Zero Display', 'Wanted Sans', system-ui, sans-serif";
+
+/** Z-zero 로고 (사선으로 잘린 Z 마크). 원본 로고 이미지를 따라 그린 도형 */
+export function logoSvg(h = 64, color = AC) {
+  const w = (h * 170) / 250;
+  return `<svg width="${w.toFixed(1)}" height="${h}" viewBox="0 0 170 250" role="img" aria-label="Z-zero"><path fill="${color}" d="M0 0V158L41 116V43H128L0 172V250H170V83L126 127V207H42L170 70V0Z"/></svg>`;
+}
+
+/** 로고 + 글자 (가로형) */
+export function wordmark(size = 40, color = '#EDEDEB') {
+  return `<span style="display: inline-flex; align-items: center; gap: ${Math.round(size * 0.32)}px">${logoSvg(size * 1.05)}<span style="font-family: ${DISPLAY}; font-weight: 700; font-size: ${size * 1.25}px; line-height: 0.8; letter-spacing: 0.06em; color: ${color}; padding-top: ${Math.round(size * 0.12)}px">Z-ZERO</span></span>`;
+}
+
+/** 카메라 클립 영상: 클립 종류(label) → 영상·썸네일 */
+const CLIP_MEDIA = {
+  '턴': 'clip-cut', '급정지': 'clip-stop', '착지': 'clip-landing',
+  '인사이드 터치': 'clip-inside', '아웃사이드 터치': 'clip-outside', '킥': 'clip-kick',
+};
+export function clipMedia(label) {
+  const n = CLIP_MEDIA[label] || 'clip-inside';
+  return { video: `assets/video/${n}.mp4`, poster: `assets/video/${n}.jpg` };
+}
+
+/** 자동재생 반복 영상 (소리 없음) */
+export const loopVideo = (name, style = '', extra = '') =>
+  `<video src="assets/video/${name}.mp4" poster="assets/video/${name}.jpg" autoplay muted loop playsinline preload="auto" ${extra} style="position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; ${style}"></video>`;

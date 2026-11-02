@@ -1,4 +1,4 @@
-import { sleeveSvg, t, statusBar, AC } from '../ui.js';
+import { t, statusBar, AC, DISPLAY, logoSvg, loopVideo } from '../ui.js';
 
 /** 다이얼 눈금 48개. on개까지 라임색 */
 const ticks = (on) => Array.from({ length: 48 }, (_, i) =>
@@ -20,23 +20,18 @@ export default {
   id: 'Welcome',
   render: (s) => `
 <div class="root">
-<div aria-hidden="true" style="position: absolute; left: -120px; top: -160px; width: 520px; height: 420px; border-radius: 50%; background: radial-gradient(closest-side, rgba(212,238,59,0.09), rgba(0,0,0,0))"></div>
+${loopVideo('welcome', 'opacity: 0.55; filter: saturate(0.9)')}
+<div aria-hidden="true" style="position: absolute; inset: 0; background: linear-gradient(180deg, rgba(13,14,15,0.85) 0%, rgba(13,14,15,0.25) 38%, rgba(13,14,15,0.35) 60%, #0D0E0F 88%)"></div>
 ${statusBar()}<div style="position: absolute; inset: 0; padding: 58px 20px 34px; display: flex; flex-direction: column; gap: 16px">
 
   <div style="display: flex; justify-content: flex-end; height: 44px; align-items: center">
     <span aria-label="${t("1 / 3 단계")}" style="display: flex; gap: 5px"><span style="width: 22px; height: 5px; border-radius: 3px; background: #D4EE3B"></span><span style="width: 8px; height: 5px; border-radius: 3px; background: rgba(255,255,255,0.25)"></span><span style="width: 8px; height: 5px; border-radius: 3px; background: rgba(255,255,255,0.25)"></span></span>
   </div>
 
-  <div style="position: relative; height: 380px; display: flex; align-items: center; justify-content: center; margin-top: 10px">
-    <span aria-hidden="true" style="position: absolute; width: 340px; height: 340px; border-radius: 170px; border: 1px solid rgba(255,255,255,0.05)"></span>
-    <span aria-hidden="true" style="position: absolute; width: 260px; height: 260px; border-radius: 130px; border: 1px solid rgba(255,255,255,0.07)"></span>
-    <span aria-hidden="true" style="position: absolute; width: 180px; height: 180px; border-radius: 90px; background: radial-gradient(closest-side, rgba(212,238,59,0.16), rgba(212,238,59,0))"></span>
-    <span style="position: relative; display: flex; gap: 22px; align-items: flex-end">${sleeveSvg('L', { w: 115, h: 230, id: 'wL', label: t("왼쪽 슬리브") })}${sleeveSvg('R', { w: 115, h: 230, id: 'wR', label: t("오른쪽 슬리브") })}</span>
-  </div>
-
-  <div style="display: flex; flex-direction: column; align-items: center; gap: 8px">
-    <span style="font-size: 30px; font-weight: 800; letter-spacing: 0.32em; margin-right: -0.32em">Z-ZERO</span>
-    <span style="display: flex; gap: 14px; color: rgba(237,237,235,0.62)"><svg width="18" height="18" viewBox="0 0 20 20" fill="none" stroke="rgba(237,237,235,0.62)" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M11 2.5L4.5 11H10l-1 6.5L15.5 9H10z"/></svg><svg width="18" height="18" viewBox="0 0 20 20" fill="none" stroke="rgba(237,237,235,0.62)" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15.5 10a5.5 5.5 0 11-1.6-3.9"/><path d="M14.5 2.8v3.6h-3.6"/></svg><svg width="18" height="18" viewBox="0 0 20 20" fill="none" stroke="rgba(237,237,235,0.62)" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2.5" y="5.5" width="15" height="10.5" rx="2.6"/><circle cx="10" cy="10.75" r="2.8"/><path d="M7 5.5l1.2-2h3.6l1.2 2"/></svg></span>
+  <div style="flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 22px; padding-bottom: 20px">
+    <span class="rise" style="filter: drop-shadow(0 0 40px rgba(212,238,59,0.35))">${logoSvg(132)}</span>
+    <span class="rise" style="animation-delay: .15s; font-family: ${DISPLAY}; font-weight: 700; font-size: 76px; line-height: 0.8; letter-spacing: 0.08em; margin-right: -0.08em; padding-top: 8px">Z-ZERO</span>
+    <span class="rise" style="animation-delay: .3s; font-size: 14px; font-weight: 600; color: rgba(237,237,235,0.72); letter-spacing: -0.01em">${t("쥐 오기 전에, 다이얼이 먼저.")}</span>
   </div>
 
   <div style="margin-top: auto; display: flex; flex-direction: column; align-items: center; gap: 10px">

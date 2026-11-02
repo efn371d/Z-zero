@@ -1,4 +1,4 @@
-import { sleeveSvg, legIcon, t, statusBar, AC } from '../ui.js';
+import { legIcon, t, statusBar, AC } from '../ui.js';
 
 // 연결 화면: 왼쪽 → 오른쪽 순서로 블루투스 연결 (데모: 각 3초)
 const PAIR_SEC = 3;
@@ -10,28 +10,34 @@ function battery(pct) {
   return `<svg width="22" height="12" viewBox="0 0 22 12" aria-hidden="true"><rect x="0.75" y="0.75" width="18" height="10.5" rx="3" fill="none" stroke="rgba(237,237,235,0.62)" stroke-width="1.3"></rect><rect x="2.5" y="2.5" width="${(14.5 * pct / 100).toFixed(1)}" height="7" rx="1.6" fill="${pct < 20 ? '#F0803A' : AC}"></rect><rect x="20" y="4" width="1.6" height="4" rx="0.8" fill="rgba(237,237,235,0.62)"></rect></svg>`;
 }
 
+/**
+ * 다이얼 하나 (왼쪽/오른쪽)
+ * - 대기: 흐리게, 탭하면 연결 시작
+ * - 연결 중: 다이얼이 통통 튀고 파동이 퍼짐, 둘레 링이 3초 동안 차오름
+ * - 연결됨: 라임 테두리 + 체크 + 배터리
+ */
 function side(sd, s) {
   const sl = s.sleeves[sd], on = sl.paired, busy = pairing === sd;
-  const C = 128.8, prog = busy ? C * (1 - left / PAIR_SEC) : 0;
-  // 다이얼 위치: 왼쪽 슬리브는 x≈61, 오른쪽은 x≈89 → 빛·전파 그림 위치를 맞춤
-  const shift = (html, dx) => html.replace(/left: (-?\d+)px/g, (m, v) => `left: ${+v + dx}px`);
-  let status = on
-    ? `<span aria-hidden="true" style="position: absolute; left: 1px; top: -13px; width: 120px; height: 120px; border-radius: 60px; background: radial-gradient(closest-side, rgba(212,238,59,0.22), rgba(212,238,59,0))"></span>`
-    : busy ? `<span class="blink" style="position:absolute;inset:0;pointer-events:none"><span aria-hidden="true" style="position: absolute; left: 59px; top: 17px; width: 60px; height: 60px; border-radius: 50%; border: 1px solid rgba(255,255,255,0.3)"></span><span aria-hidden="true" style="position: absolute; left: 41px; top: -1px; width: 96px; height: 96px; border-radius: 50%; border: 1px solid rgba(255,255,255,0.16)"></span><span aria-hidden="true" style="position: absolute; left: 23px; top: -19px; width: 132px; height: 132px; border-radius: 50%; border: 1px solid rgba(255,255,255,0.08)"></span></span>` : '';
-  if (on && sd === 'R') status = shift(status, 28);
-  if (busy && sd === 'L') status = shift(status, -28);
-  const badge = on
-    ? `<span style="width: 44px; height: 44px; border-radius: 22px; background: #D4EE3B; display: flex; align-items: center; justify-content: center"><svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="#0D0E0F" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4.5 10.5l3.5 3.5 7.5-8"/></svg></span>`
-    : `<button type="button" data-act="pair" data-side="${sd}" aria-label="${t('연결')}" style="position: relative; width: 44px; height: 44px; border-radius: 22px; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.09); backdrop-filter: blur(24px); -webkit-backdrop-filter: blur(24px); box-sizing: border-box; padding: 0"><svg width="44" height="44" viewBox="0 0 44 44" aria-hidden="true" style="position: absolute; inset: -1px; transform: rotate(-90deg)"><circle cx="22.0" cy="22.0" r="20.5" fill="none" stroke="rgba(255,255,255,0.12)" stroke-width="3"></circle><circle data-ring cx="22.0" cy="22.0" r="20.5" fill="none" stroke="#D4EE3B" stroke-width="3" stroke-linecap="round" stroke-dasharray="${prog.toFixed(1)} ${C}" style="transition: stroke-dasharray .25s linear"></circle></svg><span style="position: absolute; inset: 0; display: flex; align-items: center; justify-content: center"><svg width="18" height="18" viewBox="0 0 20 20" fill="none" stroke="#EDEDEB" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 6.5l8 7-4 3.5V3l4 3.5-8 7"/></svg></span></button>`;
+  const C = 2 * Math.PI * 74, prog = on ? C : busy ? C * (1 - left / PAIR_SEC) : 0;
+  const label = t(sd === 'L' ? '왼쪽' : '오른쪽');
   const meta = on
     ? `<span style="display: flex; align-items: center; gap: 6px; font-size: 14px; font-weight: 700; font-variant-numeric: tabular-nums">${battery(sl.battery)}${sl.battery}</span>`
-    : `<span style="display: flex; align-items: center; gap: 6px; font-size: 14px; font-weight: 700; color: rgba(237,237,235,0.62)"><svg width="16" height="16" viewBox="0 0 20 20" fill="none" stroke="rgba(237,237,235,0.62)" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="10" cy="10" r="7"/><path d="M10 3v5"/></svg><span data-left>${busy ? t('{n}초', { n: Math.ceil(left) }) : t('대기')}</span></span>`;
-  return `<div style="position: relative; width: 150px; display: flex; flex-direction: column; align-items: center; gap: 14px">
-  ${status}
-  <span style="position: relative">${sleeveSvg(sd, { w: 125, h: 250, id: 'c' + sd, label: t(sd === 'L' ? '왼쪽 슬리브' : '오른쪽 슬리브'), opacity: on ? 1 : 0.45, on })}</span>
-  ${badge}
-  <span style="display: flex; align-items: center; gap: 8px">${legIcon(sd, on ? AC : 'rgba(237,237,235,0.40)')}${meta}</span>
-</div>`;
+    : `<span style="font-size: 14px; font-weight: 700; color: rgba(237,237,235,0.62); font-variant-numeric: tabular-nums" data-left>${busy ? t('{n}초', { n: Math.ceil(left) }) : t('대기')}</span>`;
+  return `<button type="button" data-act="pair" data-side="${sd}" aria-label="${label} ${t(on ? '연결됨' : '연결')}" style="position: relative; width: 160px; display: flex; flex-direction: column; align-items: center; gap: 18px; background: none; border: 0; padding: 0; color: inherit; font-family: inherit">
+  <span style="position: relative; width: 160px; height: 160px; display: block">
+    ${busy ? `<span aria-hidden="true" class="ripple" style="position: absolute; inset: 10px; border-radius: 50%; border: 2px solid rgba(212,238,59,0.6)"></span><span aria-hidden="true" class="ripple" style="position: absolute; inset: 10px; border-radius: 50%; border: 2px solid rgba(212,238,59,0.6); animation-delay: .8s"></span>` : ''}
+    ${on ? `<span aria-hidden="true" style="position: absolute; inset: -10px; border-radius: 50%; background: radial-gradient(closest-side, rgba(212,238,59,0.28), rgba(212,238,59,0))"></span>` : ''}
+    <svg width="160" height="160" viewBox="0 0 160 160" aria-hidden="true" style="position: absolute; inset: 0; transform: rotate(-90deg)"><circle cx="80" cy="80" r="74" fill="none" stroke="rgba(255,255,255,0.10)" stroke-width="4"></circle><circle data-ring cx="80" cy="80" r="74" fill="none" stroke="#D4EE3B" stroke-width="4" stroke-linecap="round" stroke-dasharray="${prog.toFixed(1)} ${C.toFixed(1)}" style="transition: stroke-dasharray .25s linear"></circle></svg>
+    <span class="${busy ? 'hop' : ''}" style="position: absolute; left: 16px; top: 16px; width: 128px; height: 128px; border-radius: 50%; overflow: hidden; background: #1A1B1C; opacity: ${on || busy ? 1 : 0.45}; transition: opacity .5s; ${sd === 'L' ? 'transform-origin: center;' : ''}">
+      <img src="assets/img/dial.jpg" alt="${label} ${t('다이얼')}" style="width: 100%; height: 100%; object-fit: cover; ${sd === 'L' ? 'transform: scaleX(-1);' : ''}">
+    </span>
+    ${on ? `<span style="position: absolute; right: 6px; bottom: 6px; width: 40px; height: 40px; border-radius: 20px; background: #D4EE3B; border: 3px solid #0D0E0F; display: flex; align-items: center; justify-content: center"><svg width="18" height="18" viewBox="0 0 20 20" fill="none" stroke="#0D0E0F" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4.5 10.5l3.5 3.5 7.5-8"/></svg></span>` : ''}
+  </span>
+  <span style="display: flex; flex-direction: column; align-items: center; gap: 6px">
+    <span style="display: flex; align-items: center; gap: 6px; font-size: 15px; font-weight: 700">${legIcon(sd, on ? AC : 'rgba(237,237,235,0.40)', 11.5, 18)}${label}</span>
+    ${meta}
+  </span>
+</button>`;
 }
 
 function nextToPair(s) { return !s.sleeves.L.paired ? 'L' : !s.sleeves.R.paired ? 'R' : null; }
@@ -48,7 +54,7 @@ ${statusBar()}<div style="position: absolute; inset: 0; padding: 58px 20px 34px;
   <div style="display: flex; justify-content: center; gap: 10px; margin-top: 6px"><span style="height: 30px; padding: 0 12px; box-sizing: border-box; border-radius: 15px; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.09); backdrop-filter: blur(24px); -webkit-backdrop-filter: blur(24px); color: #EDEDEB; font-size: 12px; font-weight: 600; display: inline-flex; align-items: center; gap: 6px; white-space: nowrap; flex: none"><svg width="14" height="14" viewBox="0 0 20 20" fill="none" stroke="#EDEDEB" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="10" cy="10" r="7"/><path d="M10 3v5"/></svg>${t("다이얼 길게 누르기")}</span><span style="height: 30px; padding: 0 12px; box-sizing: border-box; border-radius: 15px; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.09); backdrop-filter: blur(24px); -webkit-backdrop-filter: blur(24px); color: #EDEDEB; font-size: 12px; font-weight: 600; display: inline-flex; align-items: center; gap: 6px; white-space: nowrap; flex: none"><svg width="14" height="14" viewBox="0 0 20 20" fill="none" stroke="#EDEDEB" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 6.5l8 7-4 3.5V3l4 3.5-8 7"/></svg>${t("3초@Connect")}</span></div>
 
 
-  <div style="display: flex; justify-content: center; gap: 24px; margin-top: 24px">
+  <div style="flex: 1; display: flex; justify-content: center; align-items: center; gap: 24px; padding-bottom: 40px">
     ${side('L', s)}
     ${side('R', s)}
   </div>
@@ -61,7 +67,7 @@ ${statusBar()}<div style="position: absolute; inset: 0; padding: 58px 20px 34px;
 </div>
 `,
   actions: {
-    pair: (b, app) => { if (!pairing) start(app, b.dataset.side); },
+    pair: (b, app) => { if (app.s.sleeves[b.dataset.side].paired) { app.toast(t(b.dataset.side === 'L' ? '왼쪽 연결됨' : '오른쪽 연결됨')); return; } if (!pairing) start(app, b.dataset.side); },
     next: (b, app) => {
       const s = app.s;
       if (!ready(s)) { app.toast(t('양쪽 슬리브를 먼저 연결해 주세요')); return; }
@@ -81,9 +87,10 @@ function start(app, sd) {
   clearInterval(timer);
   timer = setInterval(() => {
     left -= 0.25;
-    const ring = document.querySelector('.screen.on [data-act="pair"][data-side="' + sd + '"] [data-ring]');
-    const lab = document.querySelector('.screen.on [data-act="pair"][data-side="' + sd + '"]')?.parentElement.querySelector('[data-left]');
-    if (ring) ring.setAttribute('stroke-dasharray', (128.8 * (1 - left / PAIR_SEC)).toFixed(1) + ' 128.8');
+    const btn = document.querySelector('.screen.on [data-act="pair"][data-side="' + sd + '"]');
+    const ring = btn && btn.querySelector('[data-ring]'), lab = btn && btn.querySelector('[data-left]');
+    const C = 2 * Math.PI * 74;
+    if (ring) ring.setAttribute('stroke-dasharray', (C * (1 - left / PAIR_SEC)).toFixed(1) + ' ' + C.toFixed(1));
     if (lab) lab.textContent = t('{n}초', { n: Math.max(1, Math.ceil(left)) });
     if (left <= 0) {
       clearInterval(timer); pairing = null;

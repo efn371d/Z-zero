@@ -1,4 +1,4 @@
-import { t, statusBar, fmt, AC, WARN } from '../ui.js';
+import { t, statusBar, fmt, AC, WARN, DISPLAY } from '../ui.js';
 import { sportById, MODES } from '../data.js';
 import { effThreshold } from '../sim.js';
 
@@ -23,7 +23,7 @@ export default {
 <div class="root">
 <div aria-hidden="true" style="position: absolute; left: -120px; top: -160px; width: 520px; height: 420px; border-radius: 50%; background: radial-gradient(closest-side, rgba(212,238,59,0.09), rgba(0,0,0,0))"></div>
 
-<img src="assets/img/sleeve-outer.jpg" alt="" aria-hidden="true" style="position: absolute; right: -130px; top: 30px; width: 400px; height: 520px; object-fit: cover; object-position: 50% 18%; opacity: 0.3">
+<img src="assets/img/live-bg.jpg" alt="" aria-hidden="true" style="position: absolute; right: -130px; top: 30px; width: 400px; height: 520px; object-fit: cover; object-position: 50% 18%; opacity: 0.3">
 <div style="position: absolute; inset: 0; background: linear-gradient(90deg, #0D0E0F 28%, rgba(13,14,15,0.15) 100%), linear-gradient(180deg, rgba(13,14,15,0) 40%, #0D0E0F 64%)"></div>
 ${statusBar()}<div style="position: absolute; inset: 0; padding: 58px 20px 34px; display: flex; flex-direction: column; gap: 16px">
 
@@ -35,7 +35,7 @@ ${statusBar()}<div style="position: absolute; inset: 0; padding: 58px 20px 34px;
 
   <div style="margin-top: 52px; display: flex; flex-direction: column; gap: 4px">
     <span style="font-size: 12px; font-weight: 500; color: rgba(237,237,235,0.62)">${t("경과")}</span>
-    <span style="font-size: 100px; font-weight: 700; line-height: 0.92; font-variant-numeric: tabular-nums; letter-spacing: -0.03em; letter-spacing: -0.06em" data-b="time">${fmt(v.L.t)}</span>
+    <span style="font-family: ${DISPLAY}; font-size: 136px; font-weight: 600; line-height: 0.78; font-variant-numeric: tabular-nums; letter-spacing: 0; margin-top: 10px" data-b="time">${fmt(v.L.t)}</span>
     <span style="font-size: 22px; font-weight: 700; letter-spacing: -0.02em; margin-top: 10px">${t("종아리@Live")} <span data-b="st" style="color: ${v.st[1]}">${t(v.st[0])}</span></span>
   </div>
 

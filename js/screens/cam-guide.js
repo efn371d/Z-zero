@@ -1,4 +1,4 @@
-import { t, statusBar } from '../ui.js';
+import { t, statusBar, loopVideo } from '../ui.js';
 
 export default {
   id: 'CamGuide',
@@ -13,17 +13,17 @@ ${statusBar()}<div style="position: absolute; inset: 0; padding: 58px 20px 34px;
   </div>
 
   <div style="position: relative; height: 236px; border-radius: 28px; overflow: hidden; background: #1A1B1C; flex: none">
-<img src="assets/img/cam-lens.jpg" alt="${t('다이얼 렌즈가 발 쪽을 향함')}" style="position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: 40% 42%">
+<img src="assets/img/cam-lens.jpg" alt="${t('다이얼 렌즈가 발 쪽을 향함')}" style="position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: 50% 55%">
 <span style="position: absolute; left: 12px; bottom: 12px; display: flex; align-items: center; gap: 10px; padding: 6px 16px 6px 6px; border-radius: 28px; background: rgba(13,14,15,0.45); border: 1px solid rgba(255,255,255,0.14); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px)"><span style="width: 44px; height: 44px; flex: none; border-radius: 22px; background: #D4EE3B; display: flex; align-items: center; justify-content: center"><svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="#0D0E0F" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2.5" y="5.5" width="15" height="10.5" rx="2.6"/><circle cx="10" cy="10.75" r="2.8"/><path d="M7 5.5l1.2-2h3.6l1.2 2"/></svg></span><span style="display: flex; flex-direction: column"><span style="font-size: 17px; font-weight: 800; font-variant-numeric: tabular-nums">30–45°</span></span></span>
 </div>
 
   <div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px">
-    <div data-act="preview" data-img="assets/img/cam-standing.jpg" data-cap="정지 상태" style="position: relative; height: 112px; border-radius: 24px; overflow: hidden; background: #1A1B1C; flex: none">
-<img src="assets/img/cam-standing.jpg" alt="${t('서 있을 때 카메라 화면')}" style="position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: 50% 50%">
+    <div data-act="preview" data-img="assets/video/cam-standing.mp4" data-cap="정지 상태" style="position: relative; height: 112px; border-radius: 24px; overflow: hidden; background: #1A1B1C; flex: none">
+${loopVideo('cam-standing', 'object-position: 50% 60%', 'aria-label="' + t('서 있을 때 카메라 화면') + '"')}
 <span style="position: absolute; left: 8px; bottom: 8px"><span style="height: 30px; padding: 0 12px; box-sizing: border-box; border-radius: 15px; background: rgba(13,14,15,0.45); border: 1px solid rgba(255,255,255,0.14); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); color: #EDEDEB; font-size: 12px; font-weight: 600; display: inline-flex; align-items: center; gap: 6px; white-space: nowrap; flex: none">${t("정지 상태")}</span></span>
 </div>
-    <div data-act="preview" data-img="assets/img/cam-dribble.jpg" data-cap="이동 중" style="position: relative; height: 112px; border-radius: 24px; overflow: hidden; background: #1A1B1C; flex: none">
-<img src="assets/img/cam-dribble.jpg" alt="${t('드리블할 때 카메라 화면')}" style="position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: 50% 50%">
+    <div data-act="preview" data-img="assets/video/cam-moving.mp4" data-cap="이동 중" style="position: relative; height: 112px; border-radius: 24px; overflow: hidden; background: #1A1B1C; flex: none">
+${loopVideo('cam-moving', 'object-position: 40% 60%', 'aria-label="' + t('드리블할 때 카메라 화면') + '"')}
 <span style="position: absolute; left: 8px; bottom: 8px"><span style="height: 30px; padding: 0 12px; box-sizing: border-box; border-radius: 15px; background: rgba(13,14,15,0.45); border: 1px solid rgba(255,255,255,0.14); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); color: #EDEDEB; font-size: 12px; font-weight: 600; display: inline-flex; align-items: center; gap: 6px; white-space: nowrap; flex: none">${t("이동 중")}</span></span>
 </div>
   </div>

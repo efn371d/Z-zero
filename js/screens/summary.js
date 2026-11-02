@@ -1,4 +1,4 @@
-import { t, statusBar, tabBar, fmt, lang, esc, AC, WARN } from '../ui.js';
+import { t, statusBar, tabBar, fmt, lang, esc, clipMedia, AC, WARN, DISPLAY } from '../ui.js';
 import { analyze, sportById } from '../data.js';
 
 export function sessionTitle(ses) {
@@ -29,7 +29,7 @@ ${statusBar()}<div style="position: absolute; inset: 0; padding: 58px 20px 34px;
 
   <section style="border-radius: 28px; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.09); backdrop-filter: blur(24px); -webkit-backdrop-filter: blur(24px); padding: 18px; display: flex; flex-direction: column; gap: 14px">
     <div style="display: flex; justify-content: space-between; align-items: flex-start">
-      <span style="display: flex; flex-direction: column"><span style="font-size: 12px; font-weight: 500; color: rgba(237,237,235,0.62)">${t("종아리 점수")}</span><span style="display: flex; align-items: center; gap: 8px"><span style="font-size: 56px; font-weight: 700; line-height: 1.05; font-variant-numeric: tabular-nums; letter-spacing: -0.03em">${a.score}</span><span style="height: 30px; padding: 0 12px; box-sizing: border-box; border-radius: 15px; background: rgba(255,255,255,0.08); color: ${STATUS_C[a.status]}; font-size: 12px; font-weight: 600; display: inline-flex; align-items: center; gap: 6px; white-space: nowrap; flex: none">${t(a.status === "안정" ? "안정@Summary" : a.status)}</span></span></span>
+      <span style="display: flex; flex-direction: column"><span style="font-size: 12px; font-weight: 500; color: rgba(237,237,235,0.62)">${t("종아리 점수")}</span><span style="display: flex; align-items: center; gap: 8px"><span style="font-family: ${DISPLAY}; font-size: 76px; font-weight: 600; line-height: 0.85; font-variant-numeric: tabular-nums; padding-top: 6px">${a.score}</span><span style="height: 30px; padding: 0 12px; box-sizing: border-box; border-radius: 15px; background: rgba(255,255,255,0.08); color: ${STATUS_C[a.status]}; font-size: 12px; font-weight: 600; display: inline-flex; align-items: center; gap: 6px; white-space: nowrap; flex: none">${t(a.status === "안정" ? "안정@Summary" : a.status)}</span></span></span>
       <a href="#Detail" data-act="detail" aria-label="${t("상세 보기")}" style="width: 44px; height: 44px; flex: none; box-sizing: border-box; border-radius: 22px; background: #D4EE3B; display: flex; align-items: center; justify-content: center"><svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="#0D0E0F" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 14L14 6M7.5 6H14v6.5"/></svg></a>
     </div>
     <div style="display: flex; justify-content: space-between; align-items: center"><span style="font-size: 12px; font-weight: 500; color: rgba(237,237,235,0.62)">${t("10분별 부하")}</span><span style="display: flex; gap: 10px; align-items: center"><svg width="11.5" height="18" viewBox="0 0 16 25" aria-hidden="true"><g transform="translate(16,0) scale(-1,1)"><path d="M2.6 1h7.2l.4 7.2-.5 7.6.6 3.1 4.6 1.9c.9.4 1 1.9.1 2.4l-.5.3H4.2c-.8 0-1.3-.6-1.2-1.4l.6-3.4C1.8 14.6.9 10.4 1.6 6.4z" fill="#EDEDEB"></path></g></svg><svg width="11.5" height="18" viewBox="0 0 16 25" aria-hidden="true"><g><path d="M2.6 1h7.2l.4 7.2-.5 7.6.6 3.1 4.6 1.9c.9.4 1 1.9.1 2.4l-.5.3H4.2c-.8 0-1.3-.6-1.2-1.4l.6-3.4C1.8 14.6.9 10.4 1.6 6.4z" fill="#D4EE3B"></path></g></svg></span></div>
@@ -42,7 +42,7 @@ ${statusBar()}<div style="position: absolute; inset: 0; padding: 58px 20px 34px;
   </div>
 
   <a href="#Insight" data-act="insight" style="display: flex; align-items: center; gap: 12px; padding: 10px; border-radius: 28px; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.09); backdrop-filter: blur(24px); -webkit-backdrop-filter: blur(24px)">
-    <img src="assets/img/dial.jpg" alt="" style="width: 56px; height: 56px; border-radius: 18px; object-fit: cover">
+    <img src="assets/img/recovery.jpg" alt="" style="width: 56px; height: 56px; border-radius: 18px; object-fit: cover">
     <span style="flex: 1; display: flex; flex-direction: column"><span style="font-size: 15px; font-weight: 700">${t("회복 플랜")}</span><span style="font-size: 12px; color: rgba(237,237,235,0.62); font-variant-numeric: tabular-nums">${t("{n}단계 · {m}분", { n: a.plan.length, m: a.planMin })}</span></span>
     <span style="width: 44px; height: 44px; flex: none; border-radius: 22px; background: #EDEDEB; display: flex; align-items: center; justify-content: center"><svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="#0D0E0F" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 10h12M11 5l5 5-5 5"/></svg></span>
   </a>
@@ -74,8 +74,8 @@ export function openClips(app, ses) {
   const clips = ses.clips || [];
   app.sheet({
     title: t('클립 {n}개', { n: clips.length }),
-    body: clips.length ? `<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px">${clips.map((c, i) => `<button type="button" data-act="play" data-i="${i}" style="position:relative;height:110px;border-radius:18px;overflow:hidden;border:0;padding:0;background:#000"><img src="${c.img}" alt="" style="width:100%;height:100%;object-fit:cover;opacity:.85"><span style="position:absolute;inset:auto 0 0 0;padding:16px 8px 6px;background:linear-gradient(180deg,transparent,rgba(0,0,0,.7));color:#fff;font:700 12px/1.2 'Wanted Sans',system-ui;text-align:left">${esc(t(c.label))}<br><span style="font-weight:500;opacity:.7">${fmt(c.t)}</span></span></button>`).join('')}</div>` : `<p>${t('이 운동에는 저장된 클립이 없어요.')}</p>`,
-    on: { play: (b) => { const c = clips[+b.dataset.i]; app.playClip(c.img, `${esc(t(c.label))}<small>${fmt(c.t)} · ${t('부하')} ${c.load}</small>`); } },
+    body: clips.length ? `<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px">${clips.map((c, i) => `<button type="button" data-act="play" data-i="${i}" style="position:relative;height:110px;border-radius:18px;overflow:hidden;border:0;padding:0;background:#000"><img src="${clipMedia(c.label).poster}" alt="" style="width:100%;height:100%;object-fit:cover;opacity:.85"><span style="position:absolute;inset:auto 0 0 0;padding:16px 8px 6px;background:linear-gradient(180deg,transparent,rgba(0,0,0,.7));color:#fff;font:700 12px/1.2 'Wanted Sans',system-ui;text-align:left">${esc(t(c.label))}<br><span style="font-weight:500;opacity:.7">${fmt(c.t)}</span></span></button>`).join('')}</div>` : `<p>${t('이 운동에는 저장된 클립이 없어요.')}</p>`,
+    on: { play: (b) => { const c = clips[+b.dataset.i]; app.playClip(clipMedia(c.label).video, `${esc(t(c.label))}<small>${fmt(c.t)} · ${t('부하')} ${c.load}</small>`); } },
     actions: [{ label: t('닫기') }],
   });
 }
