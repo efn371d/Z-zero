@@ -128,3 +128,11 @@ body.mobile .statusbar { visibility: hidden; } /* 폰 자체 상태바를 사용
 .ripple { animation: ripple 1.6s ease-out infinite; }
 @keyframes rise { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: none; } }
 .rise { animation: rise .9s cubic-bezier(.2,.7,.2,1) both; }
+
+/* 화면이 짧을 때: 내용이 잘리지 않고 스크롤되게 (버튼은 내용 아래로 밀림) */
+.root > div[style*="padding: 58px 20px 34px"] { overflow-y: auto; scrollbar-width: none; }
+.root > div[style*="padding: 58px 20px 34px"]::-webkit-scrollbar { display: none; }
+.root > div[style*="padding: 58px 20px 34px"] > * { flex-shrink: 0; }
+.root > div[style*="padding: 58px 20px 34px"] > [style*="flex: 1"] { flex-shrink: 1; }
+/* 하단 탭이 있는 화면은 탭 높이만큼 여백 */
+.root.has-tab > div[style*="padding: 58px 20px 34px"] { padding-bottom: 110px !important; }

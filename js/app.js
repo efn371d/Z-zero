@@ -239,21 +239,23 @@ function fit() {
   const dev = document.getElementById('device');
   if (isMobile()) {
     document.body.classList.add('mobile');
+    // 디자인 기준 390 × 최소 760. 화면이 짧은 폰(브라우저 주소창 포함)은 전체를 조금 줄여서 다 들어가게 함
     const vw = window.innerWidth, vh = window.innerHeight;
-    const sc = vw / 390;
+    const sc = Math.min(vw / 390, vh / 760);
     phone.style.transform = `scale(${sc})`;
+    phone.style.width = vw / sc + 'px';
     phone.style.height = vh / sc + 'px';
     dev.style.transform = '';
     dev.style.width = vw + 'px'; dev.style.height = vh + 'px';
   } else {
     document.body.classList.remove('mobile');
-    phone.style.transform = ''; phone.style.height = '';
+    phone.style.transform = ''; phone.style.height = ''; phone.style.width = '';
     dev.style.width = ''; dev.style.height = '';
     const sc = Math.min(1, (window.innerHeight * 0.94) / 864, (window.innerWidth - 20) / 410);
     dev.style.transform = `scale(${sc})`;
   }
 }
-window.addEventListener('resize', fit); fit();
+window.addEventListener('resize', fit); window.addEventListener('orientationchange', () => setTimeout(fit, 300)); fit();
 
 // ---------------- 데스크톱 바로가기 ----------------
 // 화면 바로가기는 발표·시연용: 주소 끝에 ?demo 를 붙였을 때만 보임 (예: .../Z-zero/?demo)

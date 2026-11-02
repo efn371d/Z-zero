@@ -1,6 +1,6 @@
 // 오프라인 지원: 앱 파일을 저장해 두고 인터넷 없이도 열리게 함
 // 파일을 수정해서 다시 올릴 때는 VERSION 숫자를 하나 올려 주세요 (그래야 폰에서 새 버전을 받아요)
-const VERSION = 'z-zero-v4';
+const VERSION = 'z-zero-v5';
 const FILES = [
   './',
   'index.html',

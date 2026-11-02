@@ -20,7 +20,7 @@ function bars(a) {
 export default {
   id: 'Summary',
   render: (s, app, ses = app.sessionById(app.params.sid), a = ses ? analyze(ses, s.settings.threshold) : null) => !ses ? empty() : `
-<div class="root">
+<div class="root has-tab">
 <div aria-hidden="true" style="position: absolute; left: -120px; top: -160px; width: 520px; height: 420px; border-radius: 50%; background: radial-gradient(closest-side, rgba(212,238,59,0.09), rgba(0,0,0,0))"></div>
 ${statusBar()}<div style="position: absolute; inset: 0; padding: 58px 20px 34px; display: flex; flex-direction: column; gap: 16px">
 
