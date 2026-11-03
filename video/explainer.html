@@ -61,8 +61,8 @@ const CAM=[
   [12.6, 520,520, 520,545, 1.00],
   [13.15,600,720, 470,590, 1.38],
   [16.6, 600,720, 470,590, 1.46],
-  [17.1, 520,520,-420,545, 1.00],
-  [30.5, 520,520,-420,545, 1.00],
+  [17.25,'D','D', 1010,545, 6.00],
+  [30.5, 'D','D', 1010,545, 6.00],
 ];
 function camAt(t,dial){let i=0;while(i<CAM.length-2&&t>CAM[i+1][0])i++;const a=CAM[i],b=CAM[i+1],u=ease(seg(t,a[0],b[0]));
   const v=(k,d)=>{const x=a[k]==='D'?d:a[k],y=b[k]==='D'?d:b[k];return lerp(x,y,u);};
@@ -76,16 +76,12 @@ const grain=document.createElement('canvas');grain.width=grain.height=256;{const
 const FK="'Wanted Sans'",FD="'Zero Display'";
 function wrap(str,maxW){const out=[];let cur='';for(const w of str.split(' ')){const nx=cur?cur+' '+w:w;if(g.measureText(nx).width>maxW&&cur){out.push(cur);cur=w;}else cur=nx;}if(cur)out.push(cur);return out;}
 function card(t,[t0,t1],num,title,sub,x=860,y=300){
-  if(!TEXT)return;const outA=1-seg(t,t1-.3,t1-.02);if(t<t0+.15||outA<=0)return;
+  if(!TEXT||t<t0||t>t1)return;
+  const part=(d)=>{const i=eOut(seg(t,t0+d,t0+d+.5)),o=ease(seg(t,t1-.4+d*.5,t1+d*.5-.05));return{a:i*(1-o),dy:(1-i)*44-o*44};};
   g.save();g.textBaseline='alphabetic';
-  // 라임 막대가 먼저 그어지고 번호가 따라 나옴
-  const bar=eOut(seg(t,t0+.15,t0+.45));g.fillStyle=`rgba(${LIME},${outA})`;g.fillRect(x,y-58,90*bar,6);
-  const na=eOut(seg(t,t0+.25,t0+.55))*outA;g.globalAlpha=na;g.fillStyle=`rgb(${LIME})`;g.font=`600 72px ${FD}`;g.fillText(num,x+(1-na)*-30,y+18);
-  // 제목: 왼쪽에서 오른쪽으로 마스크가 열림
-  const m=eOut(seg(t,t0+.35,t0+.8));g.globalAlpha=outA;g.font=`800 60px ${FK}`;const tw=g.measureText(title).width;
-  g.save();g.beginPath();g.rect(x,y+30,(tw+20)*m,90);g.clip();g.fillStyle=`rgb(${WHITE})`;g.fillText(title,x,y+96+(1-m)*20);g.restore();
-  if(m>0&&m<1){g.fillStyle=`rgb(${LIME})`;g.fillRect(x+(tw+20)*m-4,y+44,4,64);}
-  const sa=eOut(seg(t,t0+.6,t0+1.0))*outA;g.globalAlpha=sa;g.fillStyle=`rgb(${GREY})`;g.font=`400 28px ${FK}`;wrap(sub,480).forEach((l,i)=>g.fillText(l,x,y+150+i*42+(1-sa)*14));
+  let q=part(0);g.globalAlpha=q.a;g.fillStyle=`rgb(${LIME})`;g.font=`600 72px ${FD}`;g.fillText(num,x,y+18+q.dy);
+  q=part(.06);g.globalAlpha=q.a;g.fillStyle=`rgb(${WHITE})`;g.font=`800 60px ${FK}`;g.fillText(title,x,y+96+q.dy);
+  q=part(.12);g.globalAlpha=q.a;g.fillStyle=`rgb(${GREY})`;g.font=`400 28px ${FK}`;wrap(sub,480).forEach((l,i)=>g.fillText(l,x,y+150+i*42+q.dy));
   g.restore();
 }
 function bigNum(t,v,a,x=860,y=740,label='종아리 부하'){
@@ -134,6 +130,7 @@ function draw(t){
   if(alertOn){shx=4*Math.sin(t*2*Math.PI*19);shy=2.5*Math.cos(t*2*Math.PI*23);}
   const punch=1+.035*bump(t,10.45,.25);const z=c.z*punch;
   g.setTransform(z,0,0,z,c.sx-z*c.fx+shx,c.sy-z*c.fy+shy);
+  const legA=1-seg(t,16.95,17.3);g.globalAlpha=legA;
 
   // 실루엣
   {const L=[],R=[];for(let y=yTop;y<=yBot;y+=6){const r=ring(y,p);L.push([r.cx-r.rx,r.y]);R.push([r.cx+r.rx,r.y]);}
@@ -177,8 +174,8 @@ function draw(t){
     g.fillStyle=`rgba(${LIME},${(.5+.5*camOn)*cf})`;g.beginPath();g.arc(cam[0],cam[1],5,0,7);g.fill();line([[D[0],D[1]+44],[cam[0],cam[1]-11]],.5*cf,1.5);
   }
   g.restore();
-  // 다이얼
-  const f=fade(YD);
+  // 다이얼 (다리가 사라져도 남아서 폰으로 변함)
+  g.globalAlpha=1;const f=fade(YD)*(t<17.25?1:0);
   if(f>0){const R=44;g.save();g.translate(D[0]+0,D[1]);
     const gA=seg(t,3.4,3.9)*(1-seg(t,S.cam[0],S.cam[0]+.5))*f;
     if(gA>0){const col=load>=60?ORANGE:LIME;g.strokeStyle=`rgba(${WHITE},${.12*gA})`;g.lineWidth=6;g.beginPath();g.arc(0,0,R+16,0,7);g.stroke();g.shadowColor=`rgba(${col},1)`;g.shadowBlur=16;g.strokeStyle=`rgba(${col},${gA})`;g.beginPath();g.arc(0,0,R+16,-Math.PI/2,-Math.PI/2+load/100*Math.PI*2);g.stroke();
@@ -196,10 +193,9 @@ function draw(t){
   g.setTransform(1,0,0,1,0,0);
   if(alertOn){const pulse=.5+.5*Math.sin(t*2*Math.PI*1.8);const vg=g.createRadialGradient(W/2,H/2,300,W/2,H/2,900);vg.addColorStop(0,'rgba(255,122,26,0)');vg.addColorStop(1,`rgba(255,122,26,${.22*pulse})`);g.fillStyle=vg;g.fillRect(0,0,W,H);}
   const tf=bump(t,10.45,.12);if(tf>0){g.fillStyle=`rgba(${LIME},${.05*tf})`;g.fillRect(0,0,W,H);}
-  // 장면 전환 와이프 (가로 라임 선이 위→아래로 쓸고 지나감)
-  [S.sense[0],S.alert[0],S.tight[0],S.cam[0],S.app[0]].forEach(b=>{const u=seg(t,b-.12,b+.28);if(u<=0||u>=1)return;const y=eOut(u)*H;g.fillStyle=`rgba(${LIME},.9)`;g.fillRect(0,y-2,W,3);const gr=g.createLinearGradient(0,y-160,0,y);gr.addColorStop(0,'rgba(212,238,59,0)');gr.addColorStop(1,'rgba(212,238,59,.10)');g.fillStyle=gr;g.fillRect(0,y-160,W,160);});
 
   // ── 글자 ──
+  if(TEXT){const ba=eOut(seg(t,.3,.8))*(1-seg(t,S.end[0]-.4,S.end[0]-.1)),bx=lerp(860,150,ease(seg(t,16.8,17.7)));if(ba>0){g.fillStyle=`rgba(${LIME},${ba})`;g.fillRect(bx,242,90*ba,6);}}
   card(t,S.scan,'Z-ZERO','스마트 카프 슬리브','종아리 부하를 미리 읽고, 쥐가 오기 전에 조여 주는 슬리브');
   card(t,S.sense,'01','근육 부하 감지','다이얼 뒷면 압력 센서(FMG)가 근육이 지쳐 단단해지는 힘을 읽어요');
   card(t,S.alert,'02','쥐 오기 전 알림','부하가 경고 기준을 넘으면 다이얼이 진동해요');
@@ -208,9 +204,17 @@ function draw(t){
   const nA=seg(t,3.6,4.0)*(1-seg(t,12.2,12.55));bigNum(t,load,nA);
 
   // ── 05 앱 장면 ──
-  if(t>=S.app[0]-.1&&t<S.end[0]+.6){
-    const inU=eOut(seg(t,S.app[0]+.1,S.app[0]+.9)),outU=ease(seg(t,S.end[0]-.4,S.end[0]+.3));
-    const PH=880,PW=PH*780/1688,cx=lerp(1700,1010,inU)+lerp(0,700,outU),cy=545+Math.sin(t*1.1)*6,rotA=lerp(.14,0,inU)+Math.sin(t*.9)*.008;
+  const PH=880,PW=PH*780/1688,M1=[17.25,17.95],M2=[26.9,27.6],LB=[W/2-60,330,170*240/250,240];
+  const morph=(cx,cy,w,h,r,fill,stroke,sw,imgA)=>{g.save();g.beginPath();g.roundRect(cx-w/2,cy-h/2,w,h,Math.min(r,w/2,h/2));g.fillStyle=fill;g.shadowColor='rgba(212,238,59,.25)';g.shadowBlur=50;g.fill();g.shadowBlur=0;
+    if(imgA>0&&appImg&&appImg.naturalWidth){g.save();g.clip();g.globalAlpha=imgA;const iw=Math.max(w,h*PW/PH),ih=iw*PH/PW;g.drawImage(appImg,cx-iw/2,cy-ih/2,iw,ih);g.restore();}
+    if(sw>0){g.strokeStyle=stroke;g.lineWidth=sw;g.stroke();}g.restore();};
+  if(t>=M1[0]&&t<M1[1]){const u=ease(seg(t,...M1)),R0=44*6;
+    morph(1010,545,lerp(2*R0,PW+28,u),lerp(2*R0,PH+28,u),lerp(R0,62,u),'#1b1c1d',`rgba(${LIME},${1-u*.85})`,lerp(2.5*6,2,u),seg(u,.45,1));}
+  if(t>=M2[0]&&t<M2[1]+.5){const u=ease(seg(t,...M2)),cxE=LB[0]+LB[2]/2,cyE=LB[1]+LB[3]/2;
+    const col=`rgb(${Math.round(lerp(27,212,u))},${Math.round(lerp(28,238,u))},${Math.round(lerp(29,59,u))})`;const fo=1-seg(t,M2[1]+.15,M2[1]+.5);
+    if(fo>0){g.globalAlpha=fo;morph(lerp(1010,cxE,u),lerp(545,cyE,u),lerp(PW+28,LB[2],u),lerp(PH+28,LB[3],u),lerp(62,0,u),col,'',0,1-seg(u,0,.45));g.globalAlpha=1;}}
+  if(t>=M1[1]&&t<M2[0]){
+    const cx=1010,cy=545+Math.sin(t*1.1)*6,rotA=Math.sin(t*.9)*.008;
     // 강조: [앱 장면 번호, 시작(장면 안 초), 끝, 앱 화면 영역 x,y,w,h (780×1688 기준), 확대 배율]
     const am0=appMap(t);let hw=0,pop=0,HR=null,ZZ=1;
     HL.forEach(([si,s0,s1,r,zz])=>{if(si!==am0.i)return;const l=am0.local;const w=ease(seg(l,s0,s0+.35))*(1-ease(seg(l,s1,s1+.35)));if(w>hw){hw=w;HR=r;ZZ=zz;pop=clamp(eBack(seg(l,s0+.12,s0+.5)))*(1-ease(seg(l,s1-.08,s1+.25)));}});
@@ -236,9 +240,11 @@ function draw(t){
       g.shadowBlur=0;g.lineWidth=4;const o=14,L=26;[[-1,-1],[1,-1],[1,1],[-1,1]].forEach(([sx,sy])=>{const x=sx*(w1/2+o),y=sy*(h1/2+o);g.beginPath();g.moveTo(x,y-sy*L);g.lineTo(x,y);g.lineTo(x-sx*L,y);g.stroke();});
       g.restore();
     }
-    if(TEXT){const am=appMap(t),x=150;card(t,[S.app[0]+.45,S.end[0]],'05','앱에서 바로 확인','슬리브와 연결된 앱이 부하·경고·분석을 보여줘요',x,300);
+  }
+  if(t>=S.app[0]+.8&&t<S.end[0]){
+    if(TEXT){const am=appMap(t),x=150;card(t,[S.app[0]+.8,M2[0]],'05','앱에서 바로 확인','슬리브와 연결된 앱이 부하·경고·분석을 보여줘요',x,300);
       // 지금 재생 중인 앱 장면 자막 (바뀔 때마다 위로 밀려 올라옴)
-      const ca=seg(t,APP_T0,APP_T0+.3)*(1-seg(t,S.end[0]-.4,S.end[0]-.1));if(ca>0){const kk=eOut(clamp(am.local*3.3));
+      const ca=seg(t,APP_T0,APP_T0+.3)*(1-seg(t,M2[0]-.35,M2[0]-.05));if(ca>0){const kk=eOut(clamp(am.local*3.3));
         g.save();g.globalAlpha=ca;g.font=`600 30px ${FK}`;const tw=g.measureText(am.cap).width;g.fillStyle=`rgba(${LIME},.14)`;g.beginPath();g.roundRect(x,610+(1-kk)*20,tw+76,64,32);g.fill();
         g.fillStyle=`rgb(${LIME})`;g.beginPath();g.arc(x+32,642+(1-kk)*20,7,0,7);g.fill();g.fillStyle=`rgb(${WHITE})`;g.globalAlpha=ca*kk;g.fillText(am.cap,x+54,653+(1-kk)*20);
         // 진행 칸
@@ -247,11 +253,10 @@ function draw(t){
   // 모서리 로고
   const cornerA=seg(t,1,1.6)*(1-seg(t,S.end[0],S.end[0]+.4));if(cornerA>0&&TEXT)logo(1346,46,44,.9*cornerA);
   // 엔딩
-  const la=eOut(seg(t,S.end[0]+.5,S.end[0]+1.1));
-  if(la>0){const s=lerp(1.25,1,la);g.save();g.translate(W/2,450);g.scale(s,s);g.shadowColor=`rgba(${LIME},.6)`;g.shadowBlur=50*la;logo(-60,-120,240,la);g.restore();
-    const ra=seg(t,S.end[0]+.5,S.end[0]+1.4);if(ra<1){g.strokeStyle=`rgba(${LIME},${1-ra})`;g.lineWidth=3;g.beginPath();g.arc(W/2,450,60+500*eOut(ra),0,7);g.stroke();}
-    if(TEXT){g.globalAlpha=eOut(seg(t,S.end[0]+.9,S.end[0]+1.4));g.textAlign='center';g.fillStyle=`rgb(${WHITE})`;g.font=`600 104px ${FD}`;g.fillText('Z-ZERO',W/2,700);
-      g.globalAlpha=eOut(seg(t,S.end[0]+1.3,S.end[0]+1.9));g.fillStyle=`rgb(${GREY})`;g.font=`500 34px ${FK}`;g.fillText('쥐 오기 전에, 다이얼이 먼저.',W/2,770);g.globalAlpha=1;g.textAlign='left';}}
+  const la=t>=M2[1]?1:0;
+  if(la>0){g.save();g.shadowColor=`rgba(${LIME},.5)`;g.shadowBlur=40;logo(LB[0],LB[1],240,1);g.restore();
+    if(TEXT){g.globalAlpha=eOut(seg(t,M2[1]+.3,M2[1]+.8));g.textAlign='center';g.fillStyle=`rgb(${WHITE})`;g.font=`600 104px ${FD}`;g.fillText('Z-ZERO',W/2,700);
+      g.globalAlpha=eOut(seg(t,M2[1]+.6,M2[1]+1.1));g.fillStyle=`rgb(${GREY})`;g.font=`500 34px ${FK}`;g.fillText('쥐 오기 전에, 다이얼이 먼저.',W/2,770);g.globalAlpha=1;g.textAlign='left';}}
   // 필름 그레인
   if(BG){g.globalAlpha=.045;g.globalCompositeOperation='overlay';const r=rnd(Math.round(t*30)+1);g.fillStyle=g.createPattern(grain,'repeat');g.save();g.translate(-r()*256,-r()*256);g.fillRect(0,0,W+256,H+256);g.restore();g.globalAlpha=1;g.globalCompositeOperation='source-over';}
 }
