@@ -3,7 +3,7 @@ const KEY = 'degree-app-v1';
 
 export const DEFAULTS = {
   onboarded: false,
-  profile: { name: '디그리' },
+  profile: { name: '야옹이' },
   sleeves: {
     L: { paired: false, battery: 92 },
     R: { paired: false, battery: 89 },
@@ -30,7 +30,9 @@ function load() {
     const raw = localStorage.getItem(KEY);
     if (raw) {
       const s = JSON.parse(raw);
-      return { ...structuredClone(DEFAULTS), ...s, settings: { ...DEFAULTS.settings, ...s.settings }, sleeves: { ...DEFAULTS.sleeves, ...s.sleeves } };
+      const st = { ...structuredClone(DEFAULTS), ...s, settings: { ...DEFAULTS.settings, ...s.settings }, sleeves: { ...DEFAULTS.sleeves, ...s.sleeves } };
+      if (st.profile && st.profile.name === '디그리') st.profile.name = '야옹이'; // 예전 기본 이름 → 새 기본 이름
+      return st;
     }
   } catch (e) { /* 저장소 사용 불가 → 기본값 */ }
   return null;
