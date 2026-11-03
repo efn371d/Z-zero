@@ -1,0 +1,132 @@
+<!doctype html>
+<html><head><meta charset="utf-8"><title>Z-zero tighten graphic</title>
+<style>html,body{margin:0;background:#0b0c0a}canvas{display:block;width:100vw;height:auto}</style></head>
+<body><canvas id="c" width="1440" height="1080"></canvas>
+<script>
+// 조임 모션 그래픽 — draw(t) 하나로 t초 시점의 프레임을 그림 (렌더러가 프레임마다 호출)
+// ?bg=0 → 배경 투명(영상 위에 겹치는 용), ?fill=0 → 다리 실루엣 채움 없음
+const Q = new URLSearchParams(location.search);
+const BG = Q.get('bg') !== '0', FILL = Q.get('fill') !== '0';
+const W = 1440, H = 1080, cv = document.getElementById('c'), g = cv.getContext('2d');
+const LIME = '212,238,59', ORANGE = '255,122,26';
+const DUR = 4.0;
+
+// 종아리 옆모습 윤곽 (바깥쪽에서 본 오른쪽 다리, 발끝이 오른쪽) — [y, 뒤쪽 x, 앞쪽 x]
+const PROF = [[40,606,822],[150,566,818],[300,532,808],[420,548,802],[560,602,794],[700,650,786],[820,676,782],[880,672,790]];
+function cr(p0,p1,p2,p3,t){const t2=t*t,t3=t2*t;return 0.5*((2*p1)+(-p0+p2)*t+(2*p0-5*p1+4*p2-p3)*t2+(-p0+3*p1-3*p2+p3)*t3);}
+function prof(y){
+  let i=0; while(i<PROF.length-2 && y>PROF[i+1][0]) i++;
+  const a=PROF[Math.max(0,i-1)],b=PROF[i],c=PROF[i+1],d=PROF[Math.min(PROF.length-1,i+2)];
+  const t=Math.min(1,Math.max(0,(y-b[0])/(c[0]-b[0])));
+  return [cr(a[1],b[1],c[1],d[1],t), cr(a[2],b[2],c[2],d[2],t)];
+}
+const clamp=(v,a=0,b=1)=>Math.min(b,Math.max(a,v));
+const ease=t=>t<.5?4*t*t*t:1-Math.pow(-2*t+2,3)/2;
+const seg=(t,a,b)=>clamp((t-a)/(b-a));
+
+// 조임 정도 p(0~1) → 슬리브 구간 단면을 최대 6% 줄이고, 링 간격을 다이얼 쪽으로 2% 당김
+const YD = 285, THD = 55*Math.PI/180;   // 다이얼 위치 (높이, 단면 각도)
+function sleeveW(y){ return clamp((y-110)/80)*clamp((820-y)/80); }
+function ring(y, p){
+  const yy = YD + (y-YD)*(1-0.02*p*sleeveW(y));
+  const [xb,xf]=prof(yy), s = 1-0.06*p*sleeveW(yy);
+  const cx=(xb+xf)/2, rx=(xf-xb)/2*s;
+  return {y:yy, cx, rx, ry:rx*0.22};
+}
+const pt=(r,th)=>[r.cx+r.rx*Math.cos(th), r.y+r.ry*Math.sin(th)];
+const near=th=>Math.sin(th)>=0;  // 보는 쪽(바깥쪽) 면
+
+function line(pts, alpha, width, color=LIME){
+  g.strokeStyle=`rgba(${color},${alpha})`; g.lineWidth=width; g.beginPath();
+  pts.forEach((q,i)=>i?g.lineTo(q[0],q[1]):g.moveTo(q[0],q[1])); g.stroke();
+}
+
+// 와이어: 다이얼에서 사선으로 뒤쪽을 감아 돎 [시작 y(다이얼 쪽), 끝 y, 회전 기울기(rad/px)]
+const WIRES = [[YD, 760, 0.0062],[YD, 700, 0.0078],[YD, 620, 0.0098],[YD, 120, -0.0105],[YD, 170, -0.0135]];
+function wirePts(w, p, upto=1){
+  const [y0,y1,k]=w, n=60, out=[];
+  for(let i=0;i<=n*upto;i++){ const y=y0+(y1-y0)*i/n, th=THD+Math.abs(y-y0)*Math.abs(k); out.push([ring(y,p),th]); }
+  return out;
+}
+
+function draw(t){
+  g.clearRect(0,0,W,H);
+  if(BG){ g.fillStyle='#0b0c0a'; g.fillRect(0,0,W,H); }
+  const scan = ease(seg(t,0.0,0.7));                 // 위→아래 스캔
+  const alert = seg(t,0.7,1.2);                      // 다이얼 주황 깜빡임
+  const turn = ease(seg(t,1.2,1.8));                 // ½바퀴
+  const p = ease(seg(t,1.3,2.1));                    // 조임
+  const flash = seg(t,2.0,2.5);                      // 라임 링 퍼짐
+  const dis = ease(seg(t,3.1,3.9));                  // 아래→위 사라짐
+  const breathe = t>2.4&&t<3.1 ? 0.04*Math.sin((t-2.4)*9) : 0;
+  const yTop=40, yBot=860;
+  const yScan = yTop + (yBot-yTop+60)*scan;
+  const yDis  = yBot - (yBot-yTop+60)*dis;
+  const vis = y => y<=yScan && y<=yDis;
+  const fade = y => clamp((yScan-y)/40) * clamp((yDis-y)/40);
+  const glow = 1 + 0.6*p*(1-seg(t,2.4,3.1)) + breathe;
+
+  // 다리 실루엣 (미리보기용)
+  if(FILL){
+    const L=[],R=[]; for(let y=yTop;y<=yBot;y+=6){const r=ring(y,p); L.push([r.cx-r.rx,r.y]); R.push([r.cx+r.rx,r.y]);}
+    g.fillStyle='rgba(28,30,27,0.9)'; g.beginPath(); L.concat(R.reverse()).forEach((q,i)=>i?g.lineTo(q[0],q[1]):g.moveTo(q[0],q[1])); g.closePath(); g.fill();
+    g.strokeStyle='rgba(237,237,235,0.10)'; g.lineWidth=1.5;
+    g.beginPath(); g.moveTo(790,866); g.quadraticCurveTo(900,900,1010,948); g.quadraticCurveTo(1030,972,1000,978); g.lineTo(700,972); g.quadraticCurveTo(640,968,648,930); g.quadraticCurveTo(655,895,672,880); g.stroke();
+  }
+  if(scan<=0) return;
+
+  g.save(); g.globalCompositeOperation = BG ? 'lighter' : 'source-over';
+  g.shadowColor=`rgba(${LIME},0.9)`; g.shadowBlur=10*glow;
+
+  // 단면 링
+  for(let y0=yTop+10;y0<=yBot-10;y0+=24){
+    if(!vis(y0)) continue; const r=ring(y0,p), f=fade(y0), w=sleeveW(y0);
+    const a = (0.32+0.28*p*w)*f*glow;
+    const nearPts=[],farPts=[];
+    for(let i=0;i<=40;i++){const th=Math.PI*i/40; nearPts.push(pt(r,th)); farPts.push(pt(r,Math.PI+th));}
+    line(farPts, a*0.28, 1);
+    line(nearPts, a, 1.3);
+  }
+  // 세로선
+  for(let k=0;k<16;k++){
+    const th=k/16*Math.PI*2, a0 = near(th)?0.22:0.07, pts=[];
+    for(let y0=yTop+10;y0<=Math.min(yBot-10,yScan,yDis);y0+=8) pts.push(pt(ring(y0,p),th));
+    if(pts.length>1) line(pts, a0*glow, 1);
+  }
+  // 와이어 (다이얼로 모임) + 조일 때 빛이 다이얼 쪽으로 흐름
+  WIRES.forEach((w,wi)=>{
+    const P=wirePts(w,p); let seg_=[], prevNear=null;
+    const flush=()=>{ if(seg_.length>1) line(seg_.map(q=>q[0]), (prevNear?0.85:0.25)*glow, prevNear?2.4:1.4); seg_=[]; };
+    P.forEach(([r,th])=>{ if(!vis(r.y)) return; const nr=near(th); if(prevNear!==null&&nr!==prevNear){const last=seg_[seg_.length-1]; flush(); if(last) seg_.push(last);} prevNear=nr; seg_.push([pt(r,th),nr]); });
+    flush();
+    if(p>0 && p<1){
+      for(let j=0;j<3;j++){
+        const u = 1 - ((p*1.6 + j*0.33 + wi*0.11)%1);   // 1(끝) → 0(다이얼)
+        const [r,th]=P[Math.round(u*(P.length-1))]; if(!near(th)||!vis(r.y)) continue;
+        const [x,y]=pt(r,th); g.fillStyle=`rgba(${LIME},${0.95*Math.sin(p*Math.PI)})`;
+        g.beginPath(); g.arc(x,y,4.5,0,7); g.fill();
+      }
+    }
+  });
+  // 스캔 라인
+  if(scan<1){ const r=ring(Math.min(yScan,yBot),p); g.shadowBlur=24; line([[r.cx-r.rx-40,r.y],[r.cx+r.rx+40,r.y]], 0.9, 2); }
+  g.restore();
+
+  // 다이얼
+  if(!vis(YD)) return;
+  const [dx,dy]=pt(ring(YD,p),THD), R=44, f=fade(YD);
+  g.save(); g.translate(dx,dy);
+  const blink = alert>0&&alert<1 ? Math.abs(Math.sin(alert*Math.PI*2)) : 0;
+  if(blink>0){ g.shadowColor=`rgba(${ORANGE},1)`; g.shadowBlur=30; g.strokeStyle=`rgba(${ORANGE},${0.9*blink*f})`; g.lineWidth=4; g.beginPath(); g.arc(0,0,R+10,0,7); g.stroke(); }
+  if(flash>0&&flash<1){ g.shadowColor=`rgba(${LIME},1)`; g.shadowBlur=30; g.strokeStyle=`rgba(${LIME},${(1-flash)*f})`; g.lineWidth=3; g.beginPath(); g.arc(0,0,R+10+90*ease(flash),0,7); g.stroke(); }
+  g.shadowBlur=0;
+  g.fillStyle=`rgba(13,14,15,${0.95*f})`; g.beginPath(); g.arc(0,0,R,0,7); g.fill();
+  g.strokeStyle=`rgba(${LIME},${0.9*f})`; g.lineWidth=2; g.beginPath(); g.arc(0,0,R,0,7); g.stroke();
+  g.rotate(turn*Math.PI + p*0);  // ½바퀴 = 180°
+  for(let i=0;i<24;i++){ const a=i/24*Math.PI*2; g.strokeStyle=`rgba(237,237,235,${0.35*f})`; g.lineWidth=1.5; g.beginPath(); g.moveTo(Math.cos(a)*(R-9),Math.sin(a)*(R-9)); g.lineTo(Math.cos(a)*(R-3),Math.sin(a)*(R-3)); g.stroke(); }
+  g.shadowColor=`rgba(${LIME},1)`; g.shadowBlur=12; g.strokeStyle=`rgba(${LIME},${f})`; g.lineWidth=4; g.beginPath(); g.moveTo(0,-R+12); g.lineTo(0,-R+28); g.stroke();
+  g.restore();
+}
+window.draw=draw; window.DUR=DUR;
+if(!Q.has('render')){ const t0=performance.now(); (function loop(){ draw(((performance.now()-t0)/1000)%(DUR+0.6)); requestAnimationFrame(loop); })(); }
+</script></body></html>
