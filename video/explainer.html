@@ -162,7 +162,7 @@ function draw(t){
       if(pa>0){line([toe,A,heel],.75*pa,1.8,WHITE);
         const shin=Math.atan2(-1,-.06),foot=Math.atan2(toe[1]-A[1],toe[0]-A[0]);
         g.strokeStyle=`rgba(${LIME},${.9*pa})`;g.lineWidth=3;g.beginPath();g.arc(A[0],A[1],58,shin,foot);g.stroke();
-        [toe,A,heel].forEach((q,i)=>{const pp=eBack(clamp((pa*1.2)-i*.1));g.fillStyle=`rgba(${LIME},${pa})`;g.beginPath();g.arc(q[0],q[1],8*pp,0,7);g.fill();g.strokeStyle=`rgba(${LIME},${.4*pa})`;g.lineWidth=2;g.beginPath();g.arc(q[0],q[1],16+5*Math.sin(t*7+i),0,7);g.stroke();});
+        [toe,A,heel].forEach((q,i)=>{const pp=eBack(clamp((pa*1.2)-i*.1));g.fillStyle=`rgba(${LIME},${pa})`;g.beginPath();g.arc(q[0],q[1],Math.max(0,8*pp),0,7);g.fill();g.strokeStyle=`rgba(${LIME},${.4*pa})`;g.lineWidth=2;g.beginPath();g.arc(q[0],q[1],16+5*Math.sin(t*7+i),0,7);g.stroke();});
         if(TEXT){const deg=Math.round((foot-shin)*180/Math.PI),mid=(shin+foot)/2;g.shadowBlur=0;g.fillStyle=`rgba(${WHITE},${pa})`;g.font=`600 48px ${FD}`;g.fillText(deg+'°',A[0]+Math.cos(mid)*96-20,A[1]+Math.sin(mid)*96+14);}}
     }
     g.shadowBlur=6+12*camOn;g.fillStyle=`rgba(13,14,15,${cf})`;g.strokeStyle=`rgba(${LIME},${(.5+.5*camOn)*cf})`;g.lineWidth=2;g.beginPath();g.roundRect(cam[0]-16,cam[1]-11,32,22,6);g.fill();g.stroke();
