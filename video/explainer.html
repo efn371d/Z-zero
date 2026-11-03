@@ -1,7 +1,7 @@
 <!doctype html>
 <html><head><meta charset="utf-8"><title>Z-zero explainer</title>
 <style>html,body{margin:0;background:#0b0c0a}canvas{display:block;width:100vw;height:auto}</style></head>
-<body><canvas id="c" width="1440" height="1080"></canvas>
+<body><canvas id="c" width="3840" height="2160"></canvas>
 <script>
 // Z-zero 제품 설명 모션 그래픽 v2 — draw(t)가 t초의 프레임을 그림
 // ?bg=0 배경 투명, ?text=0 글자 없음
@@ -9,7 +9,7 @@
 // 05 장면: 실제 앱 녹화(video/out/app/f00000.jpg…)를 폰 화면에 재생
 const Q=new URLSearchParams(location.search);
 const BG=Q.get('bg')!=='0', TEXT=Q.get('text')!=='0';
-const W=1440,H=1080,cv=document.getElementById('c'),g=cv.getContext('2d');
+const K=2,W=1920,H=1080,PX=1330,cv=document.getElementById('c'),g=cv.getContext('2d');
 const LIME='212,238,59', ORANGE='255,122,26', WHITE='237,237,235', GREY='160,162,158';
 const S={scan:[0,3], sense:[3,6.6], alert:[6.6,8.8], tight:[8.8,12.6], cam:[12.6,16.6], app:[16.6,27.2], end:[27.2,30.5]};
 const DUR=30.5;
@@ -26,7 +26,7 @@ const bump=(t,c,w)=>Math.max(0,1-Math.abs(t-c)/w);
 function rnd(seed){let a=seed>>>0;return()=>{a=(a+0x6d2b79f5)|0;let x=Math.imul(a^(a>>>15),1|a);x=(x+Math.imul(x^(x>>>7),61|x))^x;return((x^(x>>>14))>>>0)/4294967296;};}
 
 // ── 다리 형상 (실물 슬리브: 위 접힌 밴드, 사선 패널, 뒤꿈치 트인 발걸이) ──
-const OX=-170;
+const OX=30;
 const PROF=[[40,606,822],[150,566,818],[300,532,808],[420,548,802],[560,602,794],[700,650,786],[820,676,782],[880,672,790]];
 function cr(p0,p1,p2,p3,t){const t2=t*t,t3=t2*t;return .5*((2*p1)+(-p0+p2)*t+(2*p0-5*p1+4*p2-p3)*t2+(-p0+3*p1-3*p2+p3)*t3);}
 function prof(y){let i=0;while(i<PROF.length-2&&y>PROF[i+1][0])i++;const a=PROF[Math.max(0,i-1)],b=PROF[i],c=PROF[i+1],d=PROF[Math.min(PROF.length-1,i+2)];const u=clamp((y-b[0])/(c[0]-b[0]));return[cr(a[1],b[1],c[1],d[1],u)+OX,cr(a[2],b[2],c[2],d[2],u)+OX];}
@@ -50,19 +50,19 @@ function logo(x,y,h,a){g.save();g.translate(x,y);g.scale(h/250,h/250);g.fillStyl
 
 // ── 가상 카메라: 월드 점 (fx,fy)를 화면 (sx,sy)에 z배로. 'D' = 다이얼 위치를 따라감 ──
 const CAM=[
-  [0.0,  510,520, 540,560, 1.40],
-  [2.6,  510,520, 520,540, 1.02],
-  [3.0,  510,520, 520,540, 1.00],
-  [3.55, 'D','D', 470,430, 1.75],
-  [6.6,  'D','D', 470,430, 1.90],
-  [6.9,  'D','D', 470,450, 2.15],
-  [8.8,  'D','D', 470,450, 2.25],
-  [9.3,  520,520, 520,545, 1.06],
-  [12.6, 520,520, 520,545, 1.00],
-  [13.15,600,720, 470,590, 1.38],
-  [16.6, 600,720, 470,590, 1.46],
-  [17.25,'D','D', 1010,545, 6.00],
-  [30.5, 'D','D', 1010,545, 6.00],
+  [0.0, 710,520, 740,560, 1.40],
+  [2.6, 710,520, 720,540, 1.02],
+  [3.0, 710,520, 720,540, 1.00],
+  [3.55, 'D','D', 670,430, 1.75],
+  [6.6, 'D','D', 670,430, 1.90],
+  [6.9, 'D','D', 670,450, 2.15],
+  [8.8, 'D','D', 670,450, 2.25],
+  [9.3, 720,520, 720,545, 1.06],
+  [12.6, 720,520, 720,545, 1.00],
+  [13.15, 800,720, 670,590, 1.38],
+  [16.6, 800,720, 670,590, 1.46],
+  [17.25, 'D','D', PX,545, 6.00],
+  [30.5, 'D','D', PX,545, 6.00],
 ];
 function camAt(t,dial){let i=0;while(i<CAM.length-2&&t>CAM[i+1][0])i++;const a=CAM[i],b=CAM[i+1],u=ease(seg(t,a[0],b[0]));
   const v=(k,d)=>{const x=a[k]==='D'?d:a[k],y=b[k]==='D'?d:b[k];return lerp(x,y,u);};
@@ -75,7 +75,7 @@ const grain=document.createElement('canvas');grain.width=grain.height=256;{const
 // ── 글자 ──
 const FK="'Wanted Sans'",FD="'Zero Display'";
 function wrap(str,maxW){const out=[];let cur='';for(const w of str.split(' ')){const nx=cur?cur+' '+w:w;if(g.measureText(nx).width>maxW&&cur){out.push(cur);cur=w;}else cur=nx;}if(cur)out.push(cur);return out;}
-function card(t,[t0,t1],num,title,sub,x=860,y=300){
+function card(t,[t0,t1],num,title,sub,x=1180,y=300){
   if(!TEXT||t<t0||t>t1)return;
   const part=(d)=>{const i=eOut(seg(t,t0+d,t0+d+.5)),o=ease(seg(t,t1-.4+d*.5,t1+d*.5-.05));return{a:i*(1-o),dy:(1-i)*44-o*44};};
   g.save();g.textBaseline='alphabetic';
@@ -84,7 +84,7 @@ function card(t,[t0,t1],num,title,sub,x=860,y=300){
   q=part(.12);g.globalAlpha=q.a;g.fillStyle=`rgb(${GREY})`;g.font=`400 28px ${FK}`;wrap(sub,480).forEach((l,i)=>g.fillText(l,x,y+150+i*42+q.dy));
   g.restore();
 }
-function bigNum(t,v,a,x=860,y=740,label='종아리 부하'){
+function bigNum(t,v,a,x=1180,y=740,label='종아리 부하'){
   if(!TEXT||a<=0)return;const col=v>=60?ORANGE:LIME;g.save();g.globalAlpha=a;
   g.fillStyle=`rgb(${GREY})`;g.font=`500 24px ${FK}`;g.fillText(label,x,y-150);
   const sc=1+.07*Math.max(bump(t,7.0,.25),bump(t,10.35,.3));g.translate(x-8,y);g.scale(sc,sc);
@@ -108,7 +108,7 @@ window.prep=async(t)=>{if(t<S.app[0]-.2||t>S.app[1]+.2)return;const f=Math.round
   const im=new Image();im.src=`out/app/f${String(f).padStart(5,'0')}.jpg`;await im.decode().catch(()=>{});appImg=im;appKey=f;};
 
 function draw(t){
-  g.setTransform(1,0,0,1,0,0);g.clearRect(0,0,W,H);g.globalAlpha=1;g.globalCompositeOperation='source-over';
+  g.setTransform(K,0,0,K,0,0);g.clearRect(0,0,W,H);g.globalAlpha=1;g.globalCompositeOperation='source-over';
   if(BG){const bgG=g.createRadialGradient(W*.42,H*.5,100,W*.5,H*.5,900);bgG.addColorStop(0,'#141612');bgG.addColorStop(1,'#080908');g.fillStyle=bgG;g.fillRect(0,0,W,H);}
   // 진행값
   const scan=ease(seg(t,.15,1.5)), turn=ease(seg(t,...T_TURN)), p=ease(seg(t,...T_TIGHT));
@@ -129,7 +129,7 @@ function draw(t){
   const c=camAt(t,D);let shx=0,shy=0;
   if(alertOn){shx=4*Math.sin(t*2*Math.PI*19);shy=2.5*Math.cos(t*2*Math.PI*23);}
   const punch=1+.035*bump(t,10.45,.25);const z=c.z*punch;
-  g.setTransform(z,0,0,z,c.sx-z*c.fx+shx,c.sy-z*c.fy+shy);
+  g.setTransform(z*K,0,0,z*K,(c.sx-z*c.fx+shx)*K,(c.sy-z*c.fy+shy)*K);
   const legA=1-seg(t,16.95,17.3);g.globalAlpha=legA;
 
   // 실루엣
@@ -152,7 +152,7 @@ function draw(t){
     const footA=seg(yScan,860,940);
     line(STIR.map(q=>rot(q,footAng)),.8*footA,2.2);
     line(FOOT.concat([FOOT[0]]).map(q=>rot(q,footAng)),(.22+.4*camOn)*footA,1.4,WHITE);
-    if(scan<1){const yy=Math.min(yScan,940);g.shadowBlur=30;line([[200,yy],[860,yy]],.9,2.5);g.fillStyle=`rgba(${LIME},.06)`;g.fillRect(200,yy-120,660,120);g.shadowBlur=10;}
+    if(scan<1){const yy=Math.min(yScan,940);g.shadowBlur=30;line([[400,yy],[1060,yy]],.9,2.5);g.fillStyle=`rgba(${LIME},.06)`;g.fillRect(400,yy-120,660,120);g.shadowBlur=10;}
   }
   // 카메라 모듈·시야·발 포인트
   const cam=[D[0]+4,D[1]+78],cf=fade(YD+78);
@@ -190,12 +190,12 @@ function draw(t){
     g.restore();}
 
   // ── 화면 공간 효과 ──
-  g.setTransform(1,0,0,1,0,0);
+  g.setTransform(K,0,0,K,0,0);
   if(alertOn){const pulse=.5+.5*Math.sin(t*2*Math.PI*1.8);const vg=g.createRadialGradient(W/2,H/2,300,W/2,H/2,900);vg.addColorStop(0,'rgba(255,122,26,0)');vg.addColorStop(1,`rgba(255,122,26,${.22*pulse})`);g.fillStyle=vg;g.fillRect(0,0,W,H);}
   const tf=bump(t,10.45,.12);if(tf>0){g.fillStyle=`rgba(${LIME},${.05*tf})`;g.fillRect(0,0,W,H);}
 
   // ── 글자 ──
-  if(TEXT){const ba=eOut(seg(t,.3,.8))*(1-seg(t,S.end[0]-.4,S.end[0]-.1)),bx=lerp(860,150,ease(seg(t,16.8,17.7)));if(ba>0){g.fillStyle=`rgba(${LIME},${ba})`;g.fillRect(bx,242,90*ba,6);}}
+  if(TEXT){const ba=eOut(seg(t,.3,.8))*(1-seg(t,S.end[0]-.4,S.end[0]-.1)),bx=lerp(1180,300,ease(seg(t,16.8,17.7)));if(ba>0){g.fillStyle=`rgba(${LIME},${ba})`;g.fillRect(bx,242,90*ba,6);}}
   card(t,S.scan,'Z-ZERO','스마트 카프 슬리브','종아리 부하를 미리 읽고, 쥐가 오기 전에 조여 주는 슬리브');
   card(t,S.sense,'01','근육 부하 감지','다이얼 뒷면 압력 센서(FMG)가 근육이 지쳐 단단해지는 힘을 읽어요');
   card(t,S.alert,'02','쥐 오기 전 알림','부하가 경고 기준을 넘으면 다이얼이 진동해요');
@@ -209,12 +209,12 @@ function draw(t){
     if(imgA>0&&appImg&&appImg.naturalWidth){g.save();g.clip();g.globalAlpha=imgA;const iw=Math.max(w,h*PW/PH),ih=iw*PH/PW;g.drawImage(appImg,cx-iw/2,cy-ih/2,iw,ih);g.restore();}
     if(sw>0){g.strokeStyle=stroke;g.lineWidth=sw;g.stroke();}g.restore();};
   if(t>=M1[0]&&t<M1[1]){const u=ease(seg(t,...M1)),R0=44*6;
-    morph(1010,545,lerp(2*R0,PW+28,u),lerp(2*R0,PH+28,u),lerp(R0,62,u),'#1b1c1d',`rgba(${LIME},${1-u*.85})`,lerp(2.5*6,2,u),seg(u,.45,1));}
+    morph(PX,545,lerp(2*R0,PW+28,u),lerp(2*R0,PH+28,u),lerp(R0,62,u),'#1b1c1d',`rgba(${LIME},${1-u*.85})`,lerp(2.5*6,2,u),seg(u,.45,1));}
   if(t>=M2[0]&&t<M2[1]+.5){const u=ease(seg(t,...M2)),cxE=LB[0]+LB[2]/2,cyE=LB[1]+LB[3]/2;
     const col=`rgb(${Math.round(lerp(27,212,u))},${Math.round(lerp(28,238,u))},${Math.round(lerp(29,59,u))})`;const fo=1-seg(t,M2[1]+.15,M2[1]+.5);
-    if(fo>0){g.globalAlpha=fo;morph(lerp(1010,cxE,u),lerp(545,cyE,u),lerp(PW+28,LB[2],u),lerp(PH+28,LB[3],u),lerp(62,0,u),col,'',0,1-seg(u,0,.45));g.globalAlpha=1;}}
+    if(fo>0){g.globalAlpha=fo;morph(lerp(PX,cxE,u),lerp(545,cyE,u),lerp(PW+28,LB[2],u),lerp(PH+28,LB[3],u),lerp(62,0,u),col,'',0,1-seg(u,0,.45));g.globalAlpha=1;}}
   if(t>=M1[1]&&t<M2[0]){
-    const cx=1010,cy=545+Math.sin(t*1.1)*6,rotA=Math.sin(t*.9)*.008;
+    const cx=PX,cy=545+Math.sin(t*1.1)*6,rotA=Math.sin(t*.9)*.008;
     // 강조: [앱 장면 번호, 시작(장면 안 초), 끝, 앱 화면 영역 x,y,w,h (780×1688 기준), 확대 배율]
     const am0=appMap(t);let hw=0,pop=0,HR=null,ZZ=1;
     HL.forEach(([si,s0,s1,r,zz])=>{if(si!==am0.i)return;const l=am0.local;const w=ease(seg(l,s0,s0+.35))*(1-ease(seg(l,s1,s1+.35)));if(w>hw){hw=w;HR=r;ZZ=zz;pop=clamp(eBack(seg(l,s0+.12,s0+.5)))*(1-ease(seg(l,s1-.08,s1+.25)));}});
@@ -242,7 +242,7 @@ function draw(t){
     }
   }
   if(t>=S.app[0]+.8&&t<S.end[0]){
-    if(TEXT){const am=appMap(t),x=150;card(t,[S.app[0]+.8,M2[0]],'05','앱에서 바로 확인','슬리브와 연결된 앱이 부하·경고·분석을 보여줘요',x,300);
+    if(TEXT){const am=appMap(t),x=300;card(t,[S.app[0]+.8,M2[0]],'05','앱에서 바로 확인','슬리브와 연결된 앱이 부하·경고·분석을 보여줘요',x,300);
       // 지금 재생 중인 앱 장면 자막 (바뀔 때마다 위로 밀려 올라옴)
       const ca=seg(t,APP_T0,APP_T0+.3)*(1-seg(t,M2[0]-.35,M2[0]-.05));if(ca>0){const kk=eOut(clamp(am.local*3.3));
         g.save();g.globalAlpha=ca;g.font=`600 30px ${FK}`;const tw=g.measureText(am.cap).width;g.fillStyle=`rgba(${LIME},.14)`;g.beginPath();g.roundRect(x,610+(1-kk)*20,tw+76,64,32);g.fill();
@@ -251,7 +251,7 @@ function draw(t){
         for(let i=0;i<4;i++){g.globalAlpha=ca;g.fillStyle=i<=am.i?`rgb(${LIME})`:'rgba(255,255,255,.15)';g.fillRect(x+i*58,710,48,5);}g.restore();}}
   }
   // 모서리 로고
-  const cornerA=seg(t,1,1.6)*(1-seg(t,S.end[0],S.end[0]+.4));if(cornerA>0&&TEXT)logo(1346,46,44,.9*cornerA);
+  const cornerA=seg(t,1,1.6)*(1-seg(t,S.end[0],S.end[0]+.4));if(cornerA>0&&TEXT)logo(1826,46,44,.9*cornerA);
   // 엔딩
   const la=t>=M2[1]?1:0;
   if(la>0){g.save();g.shadowColor=`rgba(${LIME},.5)`;g.shadowBlur=40;logo(LB[0],LB[1],240,1);g.restore();

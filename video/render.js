@@ -10,7 +10,7 @@ const fs = require('fs'), path = require('path');
   await p.evaluate(() => window.READY || null);
   const dur = await p.evaluate(() => window.DUR);
   const times = only ? only.split(',').map(Number) : [...Array(Math.round(dur * fps) + 1).keys()].map(i => i / fps);
-  for (let i = +(process.env.START || 0); i < times.length; i++) {
+  for (let i = +(process.env.START || 0); i < Math.min(times.length, +(process.env.END || 1e9)); i++) {
     const url = await p.evaluate(async ([t, jpg]) => { if (window.prep) await window.prep(t); draw(t); return document.getElementById('c').toDataURL(jpg ? 'image/jpeg' : 'image/png', 0.95); }, [times[i], !!process.env.JPG]);
     fs.writeFileSync(path.join(out, `f${String(i).padStart(4, '0')}.${process.env.JPG ? 'jpg' : 'png'}`), Buffer.from(url.split(',')[1], 'base64'));
   }
