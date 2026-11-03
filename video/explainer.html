@@ -98,6 +98,14 @@ function bigNum(t,v,a,x=860,y=740,label='종아리 부하'){
 // ── 앱 녹화 (05 장면): [녹화 시작초, 끝초, 자막] 을 이어 재생 ──
 const APPSEG=[[32.9,35.3,'운동 중 · 실시간 종아리 부하'],[37.1,40.3,'경고 → 다이얼 ½바퀴'],[40.5,42.3,'조인 뒤 부하가 내려감'],[44.5,46.9,'운동 후 · 점수와 분석']];
 const APP_T0=S.app[0]+.9;
+const SEGSTART=[0];APPSEG.forEach(([a,b],i)=>SEGSTART.push(SEGSTART[i]+b-a));
+const HL=[
+  [0,.5,2.0,[40,812,700,248],1.30],   // 실시간 종아리 부하 카드
+  [1,.2,1.25,[200,360,500,460],1.40], // 경고 다이얼 + 64%
+  [1,1.35,2.1,[40,876,700,262],1.30], // ½바퀴 조이기 카드
+  [2,.15,1.55,[40,812,700,248],1.30], // 조인 뒤 47%
+  [3,.3,2.1,[40,340,700,560],1.25],   // 운동 점수 84
+];
 function appMap(t){let k=Math.max(0,t-APP_T0);for(let i=0;i<APPSEG.length;i++){const[a,b,c]=APPSEG[i],d=b-a;if(k<d||i===APPSEG.length-1)return{src:a+Math.min(k,d),cap:c,i,local:k};k-=d;}}
 let appImg=null,appKey=-1;
 window.prep=async(t)=>{if(t<S.app[0]-.2||t>S.app[1]+.2)return;const f=Math.round(appMap(t).src*30);if(f===appKey)return;
@@ -203,15 +211,34 @@ function draw(t){
   if(t>=S.app[0]-.1&&t<S.end[0]+.6){
     const inU=eOut(seg(t,S.app[0]+.1,S.app[0]+.9)),outU=ease(seg(t,S.end[0]-.4,S.end[0]+.3));
     const PH=880,PW=PH*780/1688,cx=lerp(1700,1010,inU)+lerp(0,700,outU),cy=545+Math.sin(t*1.1)*6,rotA=lerp(.14,0,inU)+Math.sin(t*.9)*.008;
-    g.save();g.translate(cx,cy);g.rotate(rotA);
+    // 강조: [앱 장면 번호, 시작(장면 안 초), 끝, 앱 화면 영역 x,y,w,h (780×1688 기준), 확대 배율]
+    const am0=appMap(t);let hw=0,pop=0,HR=null,ZZ=1;
+    HL.forEach(([si,s0,s1,r,zz])=>{if(si!==am0.i)return;const l=am0.local;const w=ease(seg(l,s0,s0+.35))*(1-ease(seg(l,s1,s1+.35)));if(w>hw){hw=w;HR=r;ZZ=zz;pop=clamp(eBack(seg(l,s0+.12,s0+.5)))*(1-ease(seg(l,s1-.08,s1+.25)));}});
+    const k=PW/780, rc=HR?[-PW/2+(HR[0]+HR[2]/2)*k,-PH/2+(HR[1]+HR[3]/2)*k]:[0,0], zf=1+(ZZ-1)*hw;
+    const toS=(px,py)=>[cx+zf*(px-hw*rc[0]),cy+zf*(py-hw*rc[1])];
+    g.save();g.translate(cx,cy);g.scale(zf,zf);g.translate(-hw*rc[0],-hw*rc[1]);g.rotate(rotA);
     g.shadowColor='rgba(212,238,59,.25)';g.shadowBlur=60;g.fillStyle='#1b1c1d';g.beginPath();g.roundRect(-PW/2-14,-PH/2-14,PW+28,PH+28,62);g.fill();g.shadowBlur=0;
     g.strokeStyle='rgba(255,255,255,.12)';g.lineWidth=2;g.stroke();
     g.save();g.beginPath();g.roundRect(-PW/2,-PH/2,PW,PH,48);g.clip();g.fillStyle='#0d0e0f';g.fillRect(-PW/2,-PH/2,PW,PH);
-    if(appImg&&appImg.complete&&appImg.naturalWidth)g.drawImage(appImg,-PW/2,-PH/2,PW,PH);g.restore();
-    g.restore();
+    if(appImg&&appImg.complete&&appImg.naturalWidth)g.drawImage(appImg,-PW/2,-PH/2,PW,PH);
+    // 강조 영역 밖은 어둡게
+    if(HR&&hw>0){g.fillStyle=`rgba(5,6,5,${.68*hw})`;g.beginPath();g.rect(-PW/2,-PH/2,PW,PH);g.roundRect(-PW/2+HR[0]*k,-PH/2+HR[1]*k,HR[2]*k,HR[3]*k,14);g.fill('evenodd');}
+    g.restore();g.restore();
+    // 튀어나오는 카드: 같은 영역을 잘라 크게, 그림자와 라임 테두리
+    if(HR&&pop>0&&appImg&&appImg.naturalWidth){
+      const a=toS(-PW/2+HR[0]*k,-PH/2+HR[1]*k),b=toS(-PW/2+(HR[0]+HR[2])*k,-PH/2+(HR[1]+HR[3])*k);
+      const w0=b[0]-a[0],h0=b[1]-a[1],sc=1+.16*pop,mx=(a[0]+b[0])/2-70*pop,my=(a[1]+b[1])/2-14*pop,w1=w0*sc,h1=h0*sc,rad=18*sc;
+      g.save();g.translate(mx,my);g.rotate(-.025*pop);
+      g.shadowColor='rgba(0,0,0,.7)';g.shadowBlur=60*pop;g.shadowOffsetY=30*pop;g.fillStyle='#0d0e0f';g.beginPath();g.roundRect(-w1/2,-h1/2,w1,h1,rad);g.fill();
+      g.shadowColor='transparent';g.save();g.clip();g.drawImage(appImg,HR[0],HR[1],HR[2],HR[3],-w1/2,-h1/2,w1,h1);g.restore();
+      g.shadowColor=`rgba(${LIME},.9)`;g.shadowBlur=24*pop;g.strokeStyle=`rgba(${LIME},${pop})`;g.lineWidth=3;g.beginPath();g.roundRect(-w1/2,-h1/2,w1,h1,rad);g.stroke();
+      // 모서리 꺾쇠
+      g.shadowBlur=0;g.lineWidth=4;const o=14,L=26;[[-1,-1],[1,-1],[1,1],[-1,1]].forEach(([sx,sy])=>{const x=sx*(w1/2+o),y=sy*(h1/2+o);g.beginPath();g.moveTo(x,y-sy*L);g.lineTo(x,y);g.lineTo(x-sx*L,y);g.stroke();});
+      g.restore();
+    }
     if(TEXT){const am=appMap(t),x=150;card(t,[S.app[0]+.45,S.end[0]],'05','앱에서 바로 확인','슬리브와 연결된 앱이 부하·경고·분석을 보여줘요',x,300);
       // 지금 재생 중인 앱 장면 자막 (바뀔 때마다 위로 밀려 올라옴)
-      const ca=seg(t,APP_T0,APP_T0+.3)*(1-seg(t,S.end[0]-.4,S.end[0]-.1));if(ca>0){const kk=eOut(clamp(am.local-[0,2.4,5.6,7.4][am.i]))||1;
+      const ca=seg(t,APP_T0,APP_T0+.3)*(1-seg(t,S.end[0]-.4,S.end[0]-.1));if(ca>0){const kk=eOut(clamp(am.local*3.3));
         g.save();g.globalAlpha=ca;g.font=`600 30px ${FK}`;const tw=g.measureText(am.cap).width;g.fillStyle=`rgba(${LIME},.14)`;g.beginPath();g.roundRect(x,610+(1-kk)*20,tw+76,64,32);g.fill();
         g.fillStyle=`rgb(${LIME})`;g.beginPath();g.arc(x+32,642+(1-kk)*20,7,0,7);g.fill();g.fillStyle=`rgb(${WHITE})`;g.globalAlpha=ca*kk;g.fillText(am.cap,x+54,653+(1-kk)*20);
         // 진행 칸
